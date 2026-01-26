@@ -1,0 +1,201 @@
+Loja Integrada,,,Business Case (Ecommerce),,,
+,,,,,,
+Requirements,,,Process Steps,,,
+," ID","Define the Goal (Step 1)
+↳ Clearly define what you want to achieve with the use case. The goal should be specific, measurable, and aligned with the overall business objectives. This helps in focusing the efforts and resources on achieving the desired outcome."," Map the User Journey (Step 2)
+↳ Identify and list all the intermediate steps a user takes to achieve the primary goal. This helps in understanding the user flow and identifying key touchpoints for engagement","Identify Key Actions (Step 3)
+↳ Define custom events to track each intermediate step. Custom events are specific actions performed by users that are important for achieving the goal.","Plan Engagement Campaigns (Step 4)
+↳ Develop campaigns based on the custom events to engage users at each step of their journey. This helps in guiding users towards the goal and improving overall engagement.","Identify User Characteristics (Step 5)
+↳ Define custom attributes to capture additional information about users that will help in personalizing the engagement. Custom attributes provide deeper insights into user behavior and preferences"
+FALSE,1,"Configuração da loja – Configurar método de envio: Enviali
+Garantir que os lojistas ativem, por meio do Enviali, as transportadoras e os Correios disponíveis no hub de integração com transportadoras parceiras, habilitando métodos de envio na loja para viabilizar as vendas.","1) Jornada pelo menu lateral: Lojista acessa o painel > clica em Enviali no menu lateral > clica em Ativar na minha loja > clica em Acessar o painel do Enviali > Enviali é ativado (pop-up exibido e fechado) > na página do Enviali preenche os dados iniciais pela faixa (CTA “Preencher”) > clica em Correios e mais transportadoras para ativar um método de envio.
+","Ativar o Enviali na loja
+Preencher e confirmar os dados iniciais do Enviali
+Em ""correios e mais transportadoras"" ativar um método de envio (Correios ou transportadora)","1) Campanha de ativação do Enviali: Comunicação para lojistas que ainda não ativaram o Enviali, guiando a ativação inicial.
+2) Winback de configuração incompleta: Mensagem para lojistas que iniciaram o preenchimento dos dados do Enviali, mas abandonaram antes de concluir, incentivando a finalização da configuração.
+3) Incentivo à ativação de transportadoras: Campanha direcionada a lojistas com Enviali ativo, mas sem nenhum método de envio configurado, destacando a importância de ativar os Correios ou transportadoras para viabilizar vendas.
+4) Confirmação de configuração concluída: Comunicação de sucesso após a ativação de um método de envio, reforçando que a loja já está pronta para vender com Enviali.
+5) Próximo passo (expansão de uso): Mensagem sugerindo a ativação de mais transportadoras, otimizações no envio (ex: mais opções para o cliente final) e a compra de etiquetas.","Atributos de envio / logística
+Métodos de envio ativos (ex: PAC, Jadlog, Loggi)
+Origem do método de envio (Enviali | outro intermediador)
+Intermediador de envio (quando não for Enviali)
+
+Atributos específicos dos Correios
+Correios ativado (sim/não)
+Contrato direto com os Correios (sim/não)
+Conflito: Correios ativos via Enviali e contrato próprio 
+
+Atributos de uso do Enviali
+Compra de etiquetas pelo Enviali (sim/não)
+Saldo disponível no Enviali"
+FALSE,2,"Utilização do Enviali na loja – Compra de etiquetas e envio de pedidos
+Garantir que os lojistas utilizem, por meio do Enviali, as transportadoras e os Correios disponíveis no hub de integração com transportadoras parceiras, realizando a compra de etiquetas e o envio de pedidos pelos parceiros logísticos da Loja Integrada.","Emissão de etiquetas
+Opção 1 – Direto pela listagem de pedidos: Menu lateral esquerdo > Vendas > Listar pedidos > seleciona o pedido > clica em Pagar frete com desconto > escolhe o envio > confirma o envio.
+Opção 2 – Pelo Gerenciar etiquetas (Enviali): Menu lateral esquerdo > Enviali > Gerenciar etiquetas > visualiza etiquetas pendentes > seleciona o pedido > clica em Pagar frete com desconto > pop-up Continuar > escolhe a opção de envio > confirma o pagamento > (se necessário) Adicionar dinheiro > seleciona o valor > continua para pagamento > paga via cartão de crédito ou Pix > finaliza o pagamento.","Ações de uso do Enviali:
+Acessar o Enviali
+Acessar a listagem de pedidos ou o gerenciador de etiquetas
+Ações de emissão de etiquetas:
+Selecionar pedido para envio
+Iniciar pagamento de frete com desconto
+Selecionar opção de envio (transportadora / Correios)
+Confirmar pagamento da etiqueta
+Adicionar saldo no Enviali (quando necessário)
+Ações de monetização:
+Compra da etiqueta 
+Etiqueta emitida
+Pedido enviado via transportadora parceira","1) Incentivo à primeira compra de etiqueta: Comunicação para lojistas que ativaram o Enviali, mas ainda não compraram nenhuma etiqueta, guiando o primeiro envio de pedido e reforçando o valor de emitir etiquetas diretamente pela plataforma.
+
+2) Conversão de cotação em envio (intenção identificada): Campanha direcionada a lojistas que já tiveram cotações de frete via Enviali (cliente final escolheu uma transportadora no checkout), mas ainda não emitiram a etiqueta, incentivando a compra da etiqueta e o envio do pedido.
+
+3) Winback de emissão de etiqueta não concluída: Mensagem para lojistas que iniciaram o fluxo de pagamento de frete com desconto, mas abandonaram antes de concluir a compra da etiqueta.
+
+4) Confirmação de compra realizada: Comunicação de sucesso, reforçando que a compra foi feita via Enviali e orientando próximos passos (postagem, imprimir etiqueta, acompanhamento, etc.).
+
+5) Estímulo à recorrência de envios: Mensagem para lojistas que já emitiram etiquetas, incentivando novos envios, a compra recorrente de etiquetas e a ativação de mais transportadoras para ampliar as opções de frete.","Atributos de uso do Enviali:
+Enviali ativo (sim/não)
+Já acessou o fluxo de emissão de etiquetas (sim/não)
+Origem do fluxo de emissão (listagem de pedidos | gerenciar etiquetas)
+Atributos de emissão de etiquetas:
+Comprou etiqueta pelo Enviali (sim/não)
+Quantidade de etiquetas emitidas
+Data da PRIMEIRA/ÚLTIMA etiqueta emitida
+Atributos de intenção (pré-monetização):
+Teve cotação de frete via Enviali (sim/não)
+Transportadora escolhida pelo cliente no checkout
+Transportadora ENVIADA no pedido
+Quantidade de pedidos com cotação via Enviali sem etiqueta emitida
+Atributos financeiros:
+Possui saldo no Enviali (sim/não)
+Valor do saldo disponível
+Já adicionou saldo no Enviali (sim/não)
+Meio de pagamento utilizado para compra de etiquetas (cartão | Pix)
+Atributos de envio / logística:
+Métodos de envio ativos no Enviali (ex: Correios, Jadlog, Loggi)
+Transportadoras utilizadas para envio (histórico)
+Status do envio (primeiro, segundo, quinto e décimo)"
+FALSE,3,"Configuração da loja – Ativação e monetização da Loggi no Enviali
+Garantir que os lojistas ativem e utilizem a Loggi por meio do Enviali para realizar envios de pedidos, incentivando o uso recorrente da transportadora e a compra de etiquetas, gerando monetização dentro do hub de integração com transportadoras parceiras.","Ativar a Loggi no Enviali: Lojista acessa o menu lateral esquerdo > acessa a página do Enviali > confirma as informações de envio (se ainda não estiverem preenchidas) > clica em Correios e mais transportadoras > seleciona Loggi > clica em Configurar > clica em Ativar na minha loja.
+Utilizar a Loggi (envio de pedidos):
+Opção 1 – Direto pela listagem de pedidos: Menu lateral esquerdo > Vendas > Listar pedidos > seleciona o pedido > clica em Pagar frete com desconto > escolhe Loggi > confirma o envio.
+Opção 2 – Pelo Gerenciar etiquetas (Enviali): Menu lateral esquerdo > Enviali > Gerenciar etiquetas > visualiza etiquetas pendentes > seleciona o pedido > clica em Pagar frete com desconto > pop-up Continuar > escolhe a opção de envio > confirma o pagamento > (se necessário) Adicionar dinheiro > seleciona o valor > continua para pagamento > paga via cartão de crédito ou Pix > finaliza o pagamento.","Ações de uso:
+Acessar a listagem de pedidos ou o gerenciador de etiquetas
+Ações de emissão de etiquetas:
+Selecionar pedido para envio
+Iniciar pagamento de frete com desconto
+Selecionar opção de envio (Loggi)
+Confirmar pagamento da etiqueta
+Adicionar saldo no Enviali (quando necessário)
+Ações de monetização:
+Compra da etiqueta 
+Etiqueta emitida
+Pedido enviado via Loggi - LoggiPonto","1) Incentivo à ativação da Loggi no Enviali: Comunicação para lojistas com Enviali ativo que ainda não ativaram a Loggi, guiando a configuração e ativação da transportadora no hub.
+
+2) Incentivo à primeira emissão de etiqueta Loggi: Campanha para lojistas que ativaram a Loggi no Enviali, mas ainda não emitiram nenhuma etiqueta, estimulando o primeiro envio via LoggiPonto, inclusive se o cliente final escolheu outro meio de envio na compra.
+
+3) Conversão de cotação Loggi em envio: Mensagem direcionada a lojistas que já tiveram pedidos com cotação de frete da Loggi selecionada no checkout, mas ainda não emitiram a etiqueta, incentivando a compra da etiqueta e o envio do pedido.
+
+4) Winback de emissão de etiqueta Loggi abandonada: Comunicação para lojistas que iniciaram o pagamento de frete com desconto selecionando a Loggi, mas abandonaram antes de concluir a compra da etiqueta.
+
+5) Confirmação de compra de etiqueta Loggi: Mensagem de sucesso após a compra da etiqueta Loggi, orientando os próximos passos, como imprimir etiqueta e postagem. 
+
+6) Estímulo à recorrência de envios com Loggi: Campanha para lojistas que já utilizaram a Loggi, incentivando novos envios, maior recorrência e uso contínuo da transportadora via Enviali.","Atributos de ativação da Loggi:
+1) Loggi ativada no Enviali (sim/não)
+2) Data de ativação da Loggi
+3) Loggi configurada, mas não utilizada (sim/não) - Ativa mas sem a primeira etiqueta comprada
+Atributos de intenção (pré-monetização Loggi):
+1) Já teve cotação de frete da Loggi no checkout (sim/não)
+2) Quantidade de pedidos com Loggi selecionada no checkout
+3) Pedidos com Loggi cotada e sem etiqueta emitida
+Atributos de emissão de etiquetas Loggi
+1) Já comprou etiqueta Loggi pelo Enviali (sim/não) - primeira, segunda, quinta e décima
+2) Quantidade de etiquetas Loggi emitidas
+3) Data da primeira etiquetas emitida na Loggi 
+Atributos de envio com Loggi:
+1) Pedido enviado via Loggi (sim/não)
+Atributos financeiros relacionados à Loggi
+1) Saldo disponível no Enviali (sim/não)
+2) Compra de etiqueta
+3) Comprou etiqueta para pedido cotado com Enviali ou outro meio de envio "
+FALSE,4,"Contratação de planos diretamente pelo painel.
+Incentivar usuários do plano gratuito a contratar planos pagos.","O usuário acessa o painel > navega até a página de ""planos"" > seleciona um plano pago > inicia o checkout > preenche as informações de faturamento > escolhe o método de pagamento > conclui o pagamento.","Visualizar a página de planos
+Selecionar um plano pago
+Escolher o ciclo de cobrança (mensal ou anual)
+Iniciar o checkout
+Inserir os dados de pagamento
+Pagamento concluído","1) Recuperação de abandono de contratação: Pop-up para usuários que interromperam o checkout, incentivando a retomada da compra.
+
+2) Migração de meio de pagamento (Boleto → Cartão): Campanha destacando ativação imediata e facilidade na recorrência.
+
+3) Confirmação de contratação: Comunicação pós-assinatura com reforço de valor e próximos passos.
+
+4) Meta de assinatura: Mensagem de celebração","Atributos transacionais: 
+1) Cupom utilizado (sim/não)
+2) Código do cupom
+3) Valor final pago
+4) Meio de pagamento (boleto | cartão de crédito  | Pix)
+5) Plano contratado
+6) Ciclo de cobrança (mensal | anual)
+
+Atributos de localização:
+1) Estado
+2) Cidade"
+FALSE,5,"Configurar Loja - Criar seu primeiro Produto
+Fazer com que o primeiro produto seja configurado em até 7 dias","Opção 1: Acessou painel > Produtos>  Criar produtos > Preencher as informações de produtos/ Cadastrar por IA > Criar produto.
+Opção 2: Acessou Komea > Iniciou cadastro de produto > Criou produto ","Acessou a página de produto
+Preencheu as informações obrigatórias
+Produto criado com sucesso.","Iniciar regua para pessoas que abandonaram o cadastro;
+Iniciar um regua educacional de qualidade baseado no primeiro cadastro. 
+","1) Atributos de ativação da Loggi:
+Loggi ativada no Enviali (sim/não)
+Data de ativação da Loggi
+Loggi configurada, mas não utilizada (sim/não) - Ativa mas sem a primeira etiqueta comprada
+2) Atributos de intenção (pré-monetização Loggi):
+Já teve cotação de frete da Loggi no checkout (sim/não)
+Quantidade de pedidos com Loggi selecionada no checkout
+Pedidos com Loggi cotada e sem etiqueta emitida
+Atributos de emissão de etiquetas Loggi
+Já comprou etiqueta Loggi pelo Enviali (sim/não) - primeira, segunda, quinta e décima
+Quantidade de etiquetas Loggi emitidas
+Data da primeira etiquetas emitida na Loggi 
+3) tributos de envio com Loggi:
+Pedido enviado via Loggi (sim/não)
+4) Atributos financeiros relacionados à Loggi
+Saldo disponível no Enviali (sim/não)
+Compra de etiqueta
+Comprou etiqueta para pedido cotado com Enviali ou outro meio de envio "
+FALSE,6,"Configurar Loja - Configurar Meio de pagamento 
+Configurar meio de pagamento dentro do Pagali e passar por todo o processo de validação de conta para recebimento dos pedidos, assim como a disponibilização dos meios de pagamento na loja (Pix, boleto, cartão de crédito)","Fluxo 1: Acessar komea > configurar o meio de pagamento - Acessar Pagali > Preencher informações necessarias (varia de acordo com CPF/CNPJ) > Aprovação
+Fluxo 2: Acessar komea > configurar o meio de pagamento - Acessar Pagali > Preencher informações necessarias (varia de acordo com CPF/CNPJ) > Não aprovado > Configurar Mercado Pago > Prenchimento dos dados > Configurado","Acessou a página de missões/ Pagali
+Preencheu as informações obrigatórias
+Meio de pagamento configurado","Iniciar regua para pessoas que abandonaram esta etapa;
+Explicação do porque os dados são importantes","Aprovado e não aprovado
+Qual etapa ele parou de preencher exemplo: Renda extra não preenchida
+Quais meios de pagamento foram liberados (pix, cartão, boleto)
+Motivo da não aprovação (interno)
+Acessou o painel (fugiu do fluxo da Komea) "
+TRUE,7,"Configurar Loja - Personalizar Vitrine na Komea
+Etapas de Personalizar cor, subir ou gerar um novo logo com IA","Selecionar caminho - Subir logo ou gerar
+Selecionar o logo (mesmo se o caminho for subir logo, vamos gerar 3 opções)
+Selecionar 1 cor (4 opções)
+Finalizar","Acessou a Komea, subiu ou selecionou um logo gerado pela IA > Escolheu uma das cores e concluiu a etapa de personalização da loja ","Iniciar regua de engajamento para personalização de loja ","Geração do logo por IA 
+Escolha de logo por IA
+Modificação de cor pós publicação 
+Abandono de etapas (subiu logo, mas não selecionou cor)
+Acessou o painel (fugiu do fluxo da Komea) "
+TRUE,8,"Configurar Loja - Publicar o site na Komea 
+Enviar os dados de endereço e retirar o site do status de manutenção.","Fluxo 1: Acesso a Komea > Publicar site > Prencher dados basicos como CPF/ CNPJ > Endereço > Publicar
+Fluxo para quem cadastrou meio de pagamento:  Acesso a Komea > Publicar site > Publicou o site ","Acessou a Komea, escolheu publicar o site, preencheu informações necessarias, publicou o site","Iniciar regua de engajamento para publicação de loja ","Configurou de meio de pagamento 
+Acessou o painel (fugiu do fluxo da Komea) "
+TRUE,9,Usar a Komea como copiloto - Entrar e executar ações na komea pela primeira vez (lojistas da base),"Opção 1 - Acessou a komea > Navegou pelas oportunidades > Executou algo
+Opção 2 - Acessou a Komea > Entrou nos assistentes > Realizou uma pergunta > Executou uma ação  ","Acessou a komea > Executou algo ","Iniciar uma regua de descoberta do potencial da Komea para novas lojas 
+Engajar na utilização de lojas com vendas 
+Engajar lojas do grátis a assinar para usar a Komea completa ","Quantidade de acessos
+Data de ultimo acesso 
+Quantidade de conversas
+Quantidade de execuções 
+"
+FALSE,10,"Emissão de nota fiscal - Emitir a primeira nota fiscal na loja integrada. *Considerando que ele é simples nacional ",,,,
+FALSE,11,"Ativação de um +1 canal - Mercado Livre ","Acessar hubs de canais > Configurar Mercado Livre > Se cadastrar ou se logar > Definir etapas iniciais de configurações (estoque minimo, percentuais por tipo de anuncio, entre outros) > Enviar anuncios > Escolher tipo de anúncio > Configurar atributos > Definir preços estaveis (opcional) > Concluir envio. ","Configurar Mercado Livre > Enviar anuncios > Anuncio enviado com sucesso ","Iniciar jornada de ativação (conclusão de todas as etapas) 
+Incentivo a adesão do Canal","Produtos enviados 
+Vendas realizadas 
+Quantidade de anuncios (Premium e Classicos)"
