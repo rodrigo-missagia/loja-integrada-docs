@@ -31,20 +31,6 @@ Repositório de especificações de analytics para a **Loja Integrada**, platafo
 | [Funcionalidades](Loja%20integrada/knowledge/funcionalidades.md) | Visão geral das funcionalidades da plataforma |
 | [Segmentation Store](Loja%20integrada/knowledge/segmentation-store-optimized.md) | Mapeamento de segmentação otimizado |
 
-### Templates e Referências
-
-| Documento | Descrição |
-|-----------|-----------|
-| [Event Spec Template](.claude/clevertap-implementation/references/event_spec_template.md) | Template para especificação de eventos |
-| [Implementation Template](.claude/clevertap-implementation/references/implementation_template.md) | Template de implementação |
-| [SDK Snippets](.claude/clevertap-implementation/references/sdk_snippets.md) | Snippets de código do SDK |
-| [User Profile Template](.claude/clevertap-implementation/references/user_profile_template.md) | Template de perfil de usuário |
-| [Campaign Template](.claude/clevertap-implementation/references/campaign_template.md) | Template de campanhas |
-| [Segmentation Template](.claude/clevertap-implementation/references/segmentation_template.md) | Template de segmentação |
-| [Attribute Mapping](.claude/clevertap-implementation/references/attribute_mapping.md) | Mapeamento de atributos |
-| [Event Normalization](.claude/clevertap-implementation/references/event_normalization.md) | Normalização de eventos |
-| [Vertical Events](.claude/clevertap-implementation/references/vertical_events.md) | Eventos verticais |
-
 ---
 
 ## Business Cases
@@ -85,19 +71,14 @@ Repositório de especificações de analytics para a **Loja Integrada**, platafo
 
 ---
 
-## Arquivos do Projeto
+## Estrutura do Repositório
 
 ```
 loja-integrada/
 ├── Loja integrada/
 │   ├── docs/                    # Documentação principal
 │   └── knowledge/               # Base de conhecimento
-├── .claude/
-│   └── clevertap-implementation/
-│       └── references/          # Templates e referências
-├── archived/                    # Documentos arquivados
-├── CLAUDE.md                    # Instruções para Claude Code
-└── TODO.MD                      # Lista de tarefas pendentes
+└── README.md
 ```
 
 ---
