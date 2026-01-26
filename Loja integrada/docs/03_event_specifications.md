@@ -1,25 +1,8 @@
 # Event Specifications - Loja Integrada
 
-**Versão:** 1.1
+**Versão:** 1.0
 **Data:** 26 de Janeiro de 2026
 **Plataforma:** CleverTap
-
----
-
-## Registro de IDs Removidos
-
-Os seguintes IDs de eventos foram removidos/consolidados e não devem ser reutilizados:
-
-| ID Removido | Evento Original                    | Motivo           | Substituído Por                                      |
-| ----------- | ---------------------------------- | ---------------- | ---------------------------------------------------- |
-| EVT-0XX     | `Loggi Activated`                  | Consolidação     | `Shipping Method Enabled` com `carrier_name="loggi"` |
-| EVT-0XX     | `Loggi Label Purchased`            | Consolidação     | `Label Purchased` com `carrier_name="loggi"`         |
-| EVT-0XX     | `Mercado Livre Connection Started` | Padronização ML  | `ML Connection Started`                              |
-| EVT-0XX     | `Mercado Livre Connected`          | Padronização ML  | `ML Connected`                                       |
-| EVT-0XX     | Eventos `*Abandoned`               | Uso de Inaction  | Segmentação Inaction no CleverTap                    |
-| EVT-0XX     | `Invoice Emitted`                  | Padronização NFe | `NFe Emitted`                                        |
-
-> **Nota:** IDs marcados como EVT-0XX serão preenchidos quando identificados os IDs originais. Novos eventos devem usar IDs sequenciais a partir do último ID válido.
 
 ---
 

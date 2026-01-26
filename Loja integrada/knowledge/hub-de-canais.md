@@ -18,12 +18,12 @@ O **Hub de Canais** é a solução da Loja Integrada para centralizar vendas e i
 
 ## Marketplaces Integrados
 
-| Marketplace | Região | Descrição |
-|-------------|--------|-----------|
-| Mercado Livre | América Latina | Maior marketplace da região |
-| Magalu | Brasil | Magazine Luiza marketplace |
-| Allever | Brasil | Marketplace de moda |
-| Compre Sua Peça | Brasil | Marketplace de autopeças |
+| Marketplace     | Região         | Descrição                   |
+| --------------- | -------------- | --------------------------- |
+| Mercado Livre   | América Latina | Maior marketplace da região |
+| Magalu          | Brasil         | Magazine Luiza marketplace  |
+| Allever         | Brasil         | Marketplace de moda         |
+| Compre Sua Peça | Brasil         | Marketplace de autopeças    |
 
 ---
 
@@ -83,10 +83,10 @@ O **Mercado Livre** é o maior marketplace da América Latina e uma das principa
 
 ### Tipos de Anúncio
 
-| Tipo | Descrição | Comissão |
-|------|-----------|----------|
-| Clássico | Anúncio básico | Menor comissão |
-| Premium | Maior visibilidade | Maior comissão |
+| Tipo     | Descrição          | Comissão       |
+| -------- | ------------------ | -------------- |
+| Clássico | Anúncio básico     | Menor comissão |
+| Premium  | Maior visibilidade | Maior comissão |
 
 ### Jornada de Ativação (BC11)
 
@@ -118,16 +118,16 @@ O **Mercado Livre** é o maior marketplace da América Latina e uma das principa
 
 ### Pontos de Abandono
 
-| Etapa | Descrição |
-|-------|-----------|
-| Acesso | Não acessou o Hub de Canais |
-| Seleção | Não selecionou Mercado Livre |
-| Autenticação | Abandonou login/cadastro |
-| Configuração | Não completou configurações iniciais |
-| Seleção de produtos | Não selecionou produtos para enviar |
-| Tipo de anúncio | Não definiu tipo de anúncio |
-| Atributos | Não configurou atributos obrigatórios |
-| Confirmação | Não confirmou envio |
+| Etapa               | Descrição                             |
+| ------------------- | ------------------------------------- |
+| Acesso              | Não acessou o Hub de Canais           |
+| Seleção             | Não selecionou Mercado Livre          |
+| Autenticação        | Abandonou login/cadastro              |
+| Configuração        | Não completou configurações iniciais  |
+| Seleção de produtos | Não selecionou produtos para enviar   |
+| Tipo de anúncio     | Não definiu tipo de anúncio           |
+| Atributos           | Não configurou atributos obrigatórios |
+| Confirmação         | Não confirmou envio                   |
 
 ### Funcionalidades Específicas
 
@@ -174,100 +174,6 @@ O **Mercado Livre** é o maior marketplace da América Latina e uma das principa
 - Menor dependência de um único canal
 - Construção de marca própria
 - Dados próprios de clientes (na loja)
-
----
-
-## Atributos para Tracking
-
-### Atributos de Ativação
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `hub_channels_active` | boolean | Hub de Canais ativado |
-| `mercado_livre_connected` | boolean | Mercado Livre conectado |
-| `mercado_livre_connection_date` | date | Data de conexão |
-| `magalu_connected` | boolean | Magalu conectado |
-
-### Atributos de Configuração
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `ml_minimum_stock` | integer | Estoque mínimo configurado |
-| `ml_classic_percentage` | decimal | Percentual para anúncios clássicos |
-| `ml_premium_percentage` | decimal | Percentual para anúncios premium |
-
-### Atributos de Anúncios
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `ml_products_sent` | integer | Produtos enviados ao ML |
-| `ml_classic_ads_count` | integer | Quantidade de anúncios clássicos |
-| `ml_premium_ads_count` | integer | Quantidade de anúncios premium |
-| `ml_total_ads_count` | integer | Total de anúncios ativos |
-
-### Atributos de Vendas
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `ml_sales_count` | integer | Vendas realizadas no ML |
-| `ml_total_revenue` | decimal | Receita total no ML |
-| `ml_first_sale_date` | date | Data da primeira venda |
-| `ml_last_sale_date` | date | Data da última venda |
-
-### Atributos de Jornada
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `ml_setup_step` | string | Etapa atual da configuração |
-| `ml_setup_completed` | boolean | Configuração concluída |
-| `ml_first_ad_sent` | boolean | Primeiro anúncio enviado |
-
----
-
-## Eventos Potenciais para Tracking
-
-### Conexão
-
-| Evento | Descrição |
-|--------|-----------|
-| `Hub Channels Accessed` | Acessou o Hub de Canais |
-| `Marketplace Selected` | Selecionou um marketplace |
-| `Mercado Livre Connection Started` | Iniciou conexão com ML |
-| `Mercado Livre Connected` | Conectou com sucesso |
-| `Mercado Livre Connection Failed` | Falha na conexão |
-
-### Configuração
-
-| Evento | Descrição |
-|--------|-----------|
-| `ML Initial Setup Started` | Iniciou configuração inicial |
-| `ML Initial Setup Completed` | Completou configuração |
-| `ML Stock Settings Updated` | Atualizou configurações de estoque |
-
-### Anúncios
-
-| Evento | Descrição |
-|--------|-----------|
-| `ML Products Selected` | Selecionou produtos para enviar |
-| `ML Ad Type Selected` | Selecionou tipo de anúncio |
-| `ML Ad Attributes Configured` | Configurou atributos |
-| `ML Ad Sent` | Anúncio enviado |
-| `ML Ad Published` | Anúncio publicado com sucesso |
-| `ML Ad Failed` | Falha na publicação |
-
-### Vendas
-
-| Evento | Descrição |
-|--------|-----------|
-| `ML Sale Completed` | Venda realizada no ML |
-| `ML First Sale` | Primeira venda no ML |
-
-### Manutenção
-
-| Evento | Descrição |
-|--------|-----------|
-| `ML Reauthorization Required` | Reautorização necessária |
-| `ML Reauthorization Completed` | Reautorização concluída |
 
 ---
 

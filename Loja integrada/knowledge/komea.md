@@ -33,12 +33,6 @@ A **Komea** é o copiloto de IA da Loja Integrada, projetado para auxiliar lojis
 5. Revisar e confirmar
 6. Produto criado
 
-**Eventos potenciais para tracking:**
-
-- `Komea Product Creation Started`
-- `Komea Product Creation Completed`
-- `Komea Product Creation Abandoned`
-
 **Atributos relevantes:**
 
 - Produto criado via IA (sim/não)
@@ -62,12 +56,6 @@ A **Komea** é o copiloto de IA da Loja Integrada, projetado para auxiliar lojis
 4. Receber alertas inteligentes
 5. Executar ações sugeridas
 
-**Eventos potenciais para tracking:**
-
-- `Komea Product Analyst Accessed`
-- `Komea Product Alert Viewed`
-- `Komea Product Action Executed`
-
 ---
 
 ### 3. Criador de Promoções
@@ -82,11 +70,6 @@ A **Komea** é o copiloto de IA da Loja Integrada, projetado para auxiliar lojis
 2. Descrever promoção desejada em linguagem natural
 3. IA configura a promoção
 4. Revisar e ativar
-
-**Eventos potenciais para tracking:**
-
-- `Komea Promotion Created`
-- `Komea Promotion Type` (desconto, brinde, campanha)
 
 ---
 
@@ -103,12 +86,6 @@ A **Komea** é o copiloto de IA da Loja Integrada, projetado para auxiliar lojis
 3. Sistema automatiza contato com clientes
 4. Vendas recuperadas
 
-**Eventos potenciais para tracking:**
-
-- `Komea Cart Operator Activated`
-- `Komea Cart Recovery Sent`
-- `Komea Cart Recovery Converted`
-
 ---
 
 ### 5. Assistente de Dados
@@ -124,11 +101,6 @@ A **Komea** é o copiloto de IA da Loja Integrada, projetado para auxiliar lojis
 3. Receber resposta com dados
 4. Executar ação baseada nos dados (opcional)
 
-**Eventos potenciais para tracking:**
-
-- `Komea Data Query Made`
-- `Komea Data Query Type` (vendas, produtos, clientes)
-
 ---
 
 ### 6. Painel de Oportunidades
@@ -141,12 +113,6 @@ A **Komea** é o copiloto de IA da Loja Integrada, projetado para auxiliar lojis
 2. Visualizar Painel de Oportunidades
 3. Ver sugestões personalizadas
 4. Executar ação sugerida
-
-**Eventos potenciais para tracking:**
-
-- `Komea Opportunities Panel Viewed`
-- `Komea Opportunity Clicked`
-- `Komea Opportunity Action Executed`
 
 **Atributos relevantes:**
 
@@ -167,22 +133,11 @@ A **Komea** é o copiloto de IA da Loja Integrada, projetado para auxiliar lojis
 3. Identificar clientes para reativação
 4. Criar campanha direcionada
 
-**Eventos potenciais para tracking:**
-
-- `Komea RFV Analysis Viewed`
-- `Komea RFV Segment Selected`
-- `Komea RFV Campaign Created`
-
 ---
 
 ### 8. Gestão de Conversas
 
 **Descrição:** Permite renomear e deletar conversas nos Agentes de IA para manter histórico organizado.
-
-**Eventos potenciais para tracking:**
-
-- `Komea Conversation Renamed`
-- `Komea Conversation Deleted`
 
 ---
 
@@ -302,29 +257,15 @@ A **Komea** é o copiloto de IA da Loja Integrada, projetado para auxiliar lojis
 
 ---
 
-## Métricas-Chave para Tracking
-
-| Métrica | Descrição |
-|---------|-----------|
-| `komea_access_count` | Número total de acessos à Komea |
-| `komea_last_access_date` | Data do último acesso |
-| `komea_conversations_count` | Número de conversas iniciadas |
-| `komea_actions_executed` | Número de ações executadas |
-| `komea_products_created` | Produtos criados via Komea |
-| `komea_logo_generated_ai` | Logo gerado por IA (boolean) |
-| `komea_store_published` | Loja publicada via Komea (boolean) |
-
----
-
 ## Status das Funcionalidades
 
-| Funcionalidade | Status |
-|----------------|--------|
+| Funcionalidade             | Status     |
+| -------------------------- | ---------- |
 | Criação de Produtos com IA | Disponível |
-| Analista de Produtos | Beta |
-| Criador de Promoções | Beta |
-| Operador de Carrinho | Beta |
-| Assistente de Dados | Beta |
-| Painel de Oportunidades | Disponível |
-| Segmentação RFV | Disponível |
-| Gestão de Conversas | Disponível |
+| Analista de Produtos       | Beta       |
+| Criador de Promoções       | Beta       |
+| Operador de Carrinho       | Beta       |
+| Assistente de Dados        | Beta       |
+| Painel de Oportunidades    | Disponível |
+| Segmentação RFV            | Disponível |
+| Gestão de Conversas        | Disponível |

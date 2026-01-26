@@ -16,11 +16,11 @@ O **Pagali** é a solução de pagamento nativa da Loja Integrada, oferecendo Pi
 
 ## Meios de Pagamento Disponíveis
 
-| Meio de Pagamento | Disponibilidade | Descrição |
-|-------------------|-----------------|-----------|
-| Pix | Todos os planos | Pagamento instantâneo |
-| Boleto Bancário | Todos os planos | Pagamento via boleto |
-| Cartão de Crédito | Todos os planos | Pagamento com cartão |
+| Meio de Pagamento | Disponibilidade | Descrição                    |
+| ----------------- | --------------- | ---------------------------- |
+| Pix               | Todos os planos | Pagamento instantâneo        |
+| Boleto Bancário   | Todos os planos | Pagamento via boleto         |
+| Cartão de Crédito | Todos os planos | Pagamento com cartão         |
 | Link de Pagamento | Todos os planos | Links para pagamento externo |
 
 ---
@@ -138,13 +138,13 @@ O **Pagali** é a solução de pagamento nativa da Loja Integrada, oferecendo Pi
 
 ### Pontos de Abandono Críticos
 
-| Etapa | Descrição |
-|-------|-----------|
-| Acesso inicial | Não iniciou cadastro |
-| Dados pessoais | Abandonou preenchimento de CPF/CNPJ |
-| Renda extra | Não preencheu informações de renda |
-| Documentação | Não enviou documentos necessários |
-| Dados bancários | Não completou dados bancários |
+| Etapa           | Descrição                           |
+| --------------- | ----------------------------------- |
+| Acesso inicial  | Não iniciou cadastro                |
+| Dados pessoais  | Abandonou preenchimento de CPF/CNPJ |
+| Renda extra     | Não preencheu informações de renda  |
+| Documentação    | Não enviou documentos necessários   |
+| Dados bancários | Não completou dados bancários       |
 
 ---
 
@@ -173,90 +173,6 @@ O **Pagali** é a solução de pagamento nativa da Loja Integrada, oferecendo Pi
 
 - Corrigir pendências
 - Configurar Mercado Pago como alternativa
-
----
-
-## Atributos para Tracking
-
-### Atributos de Status
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `pagali_account_status` | string | approved, rejected, pending, not_started |
-| `pagali_verification_status` | string | verified, unverified |
-| `pagali_registration_date` | date | Data do cadastro |
-| `pagali_approval_date` | date | Data da aprovação |
-
-### Atributos de Configuração
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `pagali_pix_enabled` | boolean | Pix ativado |
-| `pagali_credit_card_enabled` | boolean | Cartão ativado |
-| `pagali_boleto_enabled` | boolean | Boleto ativado |
-| `pagali_payment_link_enabled` | boolean | Link de pagamento ativado |
-
-### Atributos de Abandono
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `pagali_registration_step` | string | Última etapa completada |
-| `pagali_abandoned_step` | string | Etapa onde abandonou |
-| `pagali_rejection_reason` | string | Motivo da não aprovação (interno) |
-
-### Atributos de Jornada
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `pagali_entry_source` | string | komea, panel, direct |
-| `pagali_left_komea_flow` | boolean | Saiu do fluxo Komea para o painel |
-
----
-
-## Eventos Potenciais para Tracking
-
-### Cadastro
-
-| Evento | Descrição |
-|--------|-----------|
-| `Pagali Registration Started` | Iniciou cadastro |
-| `Pagali Registration Step Completed` | Completou etapa do cadastro |
-| `Pagali Registration Abandoned` | Abandonou cadastro |
-| `Pagali Registration Completed` | Finalizou cadastro |
-
-### Verificação
-
-| Evento | Descrição |
-|--------|-----------|
-| `Pagali Verification Started` | Iniciou verificação |
-| `Pagali Verification Completed` | Verificação concluída |
-| `Pagali Account Approved` | Conta aprovada |
-| `Pagali Account Rejected` | Conta rejeitada |
-
-### Configuração de Meios
-
-| Evento | Descrição |
-|--------|-----------|
-| `Pagali Pix Enabled` | Pix ativado |
-| `Pagali Credit Card Enabled` | Cartão ativado |
-| `Pagali Boleto Enabled` | Boleto ativado |
-| `Pagali Payment Link Enabled` | Link de pagamento ativado |
-
-### Transações
-
-| Evento | Descrição |
-|--------|-----------|
-| `Pagali Transaction Completed` | Transação concluída |
-| `Pagali Transaction Failed` | Transação falhou |
-| `Pagali Chargeback Received` | Chargeback recebido |
-| `Pagali Refund Processed` | Estorno processado |
-
-### Saques
-
-| Evento | Descrição |
-|--------|-----------|
-| `Pagali Withdrawal Requested` | Saque solicitado |
-| `Pagali Withdrawal Completed` | Saque concluído |
 
 ---
 

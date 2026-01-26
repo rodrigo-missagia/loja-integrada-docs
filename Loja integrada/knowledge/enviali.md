@@ -18,11 +18,11 @@ O **Enviali** é a solução de fretes da Loja Integrada que ajuda na redução 
 
 ## Transportadoras Disponíveis
 
-| Transportadora | Tipo | Descrição |
-|----------------|------|-----------|
-| Correios | Estatal | PAC, SEDEX, SEDEX 10, SEDEX 12, SEDEX Hoje |
-| Jadlog | Privada | Envios econômicos e expressos |
-| Loggi | Privada | LoggiPonto - entregas urbanas |
+| Transportadora | Tipo    | Descrição                                  |
+| -------------- | ------- | ------------------------------------------ |
+| Correios       | Estatal | PAC, SEDEX, SEDEX 10, SEDEX 12, SEDEX Hoje |
+| Jadlog         | Privada | Envios econômicos e expressos              |
+| Loggi          | Privada | LoggiPonto - entregas urbanas              |
 
 ---
 
@@ -115,11 +115,11 @@ O **Enviali** é a solução de fretes da Loja Integrada que ajuda na redução 
 
 ### Pontos de Abandono
 
-| Etapa | Descrição |
-|-------|-----------|
-| Acesso inicial | Não clicou em Enviali |
-| Ativação | Não completou ativação |
-| Dados iniciais | Não preencheu dados |
+| Etapa           | Descrição                |
+| --------------- | ------------------------ |
+| Acesso inicial  | Não clicou em Enviali    |
+| Ativação        | Não completou ativação   |
+| Dados iniciais  | Não preencheu dados      |
 | Transportadoras | Não ativou nenhum método |
 
 ---
@@ -151,13 +151,13 @@ O **Enviali** é a solução de fretes da Loja Integrada que ajuda na redução 
 
 ### Pontos de Abandono
 
-| Etapa | Descrição |
-|-------|-----------|
-| Seleção de pedido | Não selecionou pedido para envio |
+| Etapa               | Descrição                                |
+| ------------------- | ---------------------------------------- |
+| Seleção de pedido   | Não selecionou pedido para envio         |
 | Início do pagamento | Não clicou em "Pagar frete com desconto" |
-| Escolha de envio | Não selecionou transportadora |
-| Confirmação | Não confirmou pagamento |
-| Adição de saldo | Abandonou ao precisar adicionar saldo |
+| Escolha de envio    | Não selecionou transportadora            |
+| Confirmação         | Não confirmou pagamento                  |
+| Adição de saldo     | Abandonou ao precisar adicionar saldo    |
 
 ---
 
@@ -201,13 +201,13 @@ O **Enviali** é a solução de fretes da Loja Integrada que ajuda na redução 
 
 **Serviços disponíveis:**
 
-| Serviço | Descrição | Status |
-|---------|-----------|--------|
-| PAC | Econômico | Disponível |
-| SEDEX | Expresso | Disponível |
-| SEDEX 10 | Entrega até 10h | Disponível |
-| SEDEX 12 | Entrega até 12h | Disponível |
-| SEDEX Hoje | Same-day | Beta |
+| Serviço    | Descrição       | Status     |
+| ---------- | --------------- | ---------- |
+| PAC        | Econômico       | Disponível |
+| SEDEX      | Expresso        | Disponível |
+| SEDEX 10   | Entrega até 10h | Disponível |
+| SEDEX 12   | Entrega até 12h | Disponível |
+| SEDEX Hoje | Same-day        | Beta       |
 
 **Serviços adicionais:**
 
@@ -305,117 +305,3 @@ O **Enviali** é a solução de fretes da Loja Integrada que ajuda na redução 
 **Disponibilidade:** Funciona com plano gratuito
 
 ---
-
-## Atributos para Tracking
-
-### Atributos de Ativação
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `enviali_active` | boolean | Enviali ativo na loja |
-| `enviali_activation_date` | date | Data de ativação |
-| `enviali_initial_data_filled` | boolean | Dados iniciais preenchidos |
-
-### Atributos de Transportadoras
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `shipping_methods_active` | array | Lista de métodos ativos |
-| `correios_active` | boolean | Correios ativado |
-| `correios_direct_contract` | boolean | Contrato direto com Correios |
-| `correios_conflict` | boolean | Conflito: Correios via Enviali e contrato próprio |
-| `loggi_active` | boolean | Loggi ativada |
-| `loggi_activation_date` | date | Data de ativação da Loggi |
-| `jadlog_active` | boolean | Jadlog ativada |
-
-### Atributos de Etiquetas
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `enviali_label_purchased` | boolean | Comprou etiqueta pelo Enviali |
-| `enviali_labels_count` | integer | Quantidade de etiquetas emitidas |
-| `enviali_first_label_date` | date | Data da primeira etiqueta |
-| `enviali_last_label_date` | date | Data da última etiqueta |
-| `loggi_labels_count` | integer | Quantidade de etiquetas Loggi |
-| `loggi_first_label_date` | date | Data da primeira etiqueta Loggi |
-
-### Atributos de Intenção (Pré-monetização)
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `enviali_quote_received` | boolean | Teve cotação via Enviali |
-| `checkout_carrier_selected` | string | Transportadora escolhida no checkout |
-| `order_carrier_used` | string | Transportadora usada no pedido |
-| `orders_quoted_without_label` | integer | Pedidos com cotação sem etiqueta emitida |
-| `loggi_checkout_quotes` | integer | Pedidos com Loggi selecionada no checkout |
-
-### Atributos Financeiros
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `enviali_has_balance` | boolean | Possui saldo no Enviali |
-| `enviali_balance_amount` | decimal | Valor do saldo disponível |
-| `enviali_added_balance` | boolean | Já adicionou saldo |
-| `enviali_payment_method` | string | Meio de pagamento (cartão/Pix) |
-
-### Atributos de Fluxo
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `label_flow_source` | string | Origem: listagem_pedidos ou gerenciar_etiquetas |
-| `label_flow_accessed` | boolean | Já acessou fluxo de emissão |
-
-### Atributos de Milestones
-
-| Atributo | Tipo | Descrição |
-|----------|------|-----------|
-| `enviali_shipment_milestone` | string | Status: first, second, fifth, tenth |
-| `loggi_label_milestone` | string | Milestone de etiquetas Loggi |
-
----
-
-## Eventos Potenciais para Tracking
-
-### Ativação
-
-| Evento | Descrição |
-|--------|-----------|
-| `Enviali Activated` | Enviali ativado na loja |
-| `Enviali Initial Data Filled` | Dados iniciais preenchidos |
-| `Shipping Method Enabled` | Método de envio ativado |
-| `Loggi Activated` | Loggi ativada |
-
-### Etiquetas
-
-| Evento | Descrição |
-|--------|-----------|
-| `Label Flow Started` | Iniciou fluxo de emissão |
-| `Label Payment Started` | Iniciou pagamento de frete |
-| `Label Carrier Selected` | Selecionou transportadora |
-| `Label Payment Confirmed` | Confirmou pagamento |
-| `Label Purchased` | Etiqueta comprada |
-| `Label Issued` | Etiqueta emitida |
-| `Label Flow Abandoned` | Abandonou fluxo de emissão |
-
-### Saldo
-
-| Evento | Descrição |
-|--------|-----------|
-| `Enviali Balance Added` | Saldo adicionado |
-| `Enviali Balance Payment Method` | Meio de pagamento do saldo |
-
-### Envio
-
-| Evento | Descrição |
-|--------|-----------|
-| `Order Shipped` | Pedido enviado |
-| `Order Shipped Via Loggi` | Pedido enviado via LoggiPonto |
-| `Order Shipped Via Correios` | Pedido enviado via Correios |
-| `Order Shipped Via Jadlog` | Pedido enviado via Jadlog |
-
-### Cotação
-
-| Evento | Descrição |
-|--------|-----------|
-| `Shipping Quote Requested` | Cotação de frete solicitada |
-| `Shipping Quote Carrier Selected` | Transportadora selecionada na cotação |
