@@ -1,6 +1,6 @@
 # Campaign Specifications - Loja Integrada
 
-**Versão:** 1.1
+**Versão:** 1.2
 **Data:** 26 de Janeiro de 2026
 **Última Atualização:** Revisão conforme Tracking Plan v1.1
 **Plataforma:** CleverTap
@@ -11,10 +11,10 @@
 
 1. [Campanhas de Logística (BC1, BC2, BC3)](#1-campanhas-de-logística-bc1-bc2-bc3)
 2. [Campanhas de Assinatura (BC4)](#2-campanhas-de-assinatura-bc4)
-3. [Campanhas de Pagamentos (BC6)](#3-campanhas-de-pagamentos-bc6)
+3. [Campanhas de Gateway de Pagamento (BC6)](#3-campanhas-de-gateway-de-pagamento-bc6)
 4. [Campanhas de Produtos (BC5)](#4-campanhas-de-produtos-bc5)
 5. [Campanhas da Komea (BC7, BC8, BC9)](#5-campanhas-da-komea-bc7-bc8-bc9)
-6. [Campanhas de Canais (BC11)](#6-campanhas-de-canais-bc11)
+6. [Campanhas de Canais - Marketplaces (BC11)](#6-campanhas-de-canais---marketplaces-bc11)
 
 ---
 
@@ -95,7 +95,7 @@ Deep Link: loja://enviali/activate
 
 #### Conversão
 
-**Evento de Conversão:** `Enviali Activated`
+**Evento de Conversão:** `Shipping Platform Activated`
 **Janela de Atribuição:** 7 dias
 
 #### Frequency Capping
@@ -121,13 +121,13 @@ Deep Link: loja://enviali/activate
 #### Audiência
 
 **Segmento:** Enviali ativado mas sem método de envio configurado
-**Tipo de Segmentação:** Inaction (Enviali Activated sem Shipping Method Enabled)
+**Tipo de Segmentação:** Inaction (Shipping Platform Activated sem Shipping Method Enabled)
 
 **Critérios de Inclusão:**
 
 - `enviali_active` = true
 - `shipping_methods_count` = 0 ou null
-- Inaction: Evento `Enviali Activated` sem `Shipping Method Enabled` em 24h
+- Inaction: Evento `Shipping Platform Activated` sem `Shipping Method Enabled` em 24h
 
 **Critérios de Exclusão:**
 
@@ -141,7 +141,7 @@ Deep Link: loja://enviali/activate
 
 **Tipo:** Inaction-Based
 
-- Trigger: 24h após `Enviali Activated` sem `Shipping Method Enabled`
+- Trigger: 24h após `Shipping Platform Activated` sem `Shipping Method Enabled`
 
 #### Conteúdo
 
@@ -199,7 +199,7 @@ Leva menos de 2 minutos!
 #### Audiência
 
 **Segmento:** Enviali ativo, sem transportadora
-**Tipo de Segmentação:** Inaction (Enviali Activated sem Shipping Method Enabled)
+**Tipo de Segmentação:** Inaction (Shipping Platform Activated sem Shipping Method Enabled)
 
 **Critérios de Inclusão:**
 
@@ -218,7 +218,7 @@ Leva menos de 2 minutos!
 
 **Tipo:** Inaction-Based
 
-- Trigger: 48h após `Enviali Activated` sem `Shipping Method Enabled`
+- Trigger: 48h após `Shipping Platform Activated` sem `Shipping Method Enabled`
 
 #### Conteúdo
 
@@ -315,61 +315,6 @@ Que tal experimentar?
 
 **Evento de Conversão:** `Label Purchased`
 **Janela de Atribuição:** 7 dias
-
----
-
-### CAMP-005: Conversão de Cotação em Envio
-
-**ID:** CAMP-005
-**Categoria:** Engagement
-**Prioridade:** Alta
-**Business Case:** BC2
-
-#### Objetivo
-
-**Goal:** Converter pedidos que tiveram cotação via Enviali mas etiqueta não foi emitida.
-**KPI Primário:** Taxa de conversão cotação → etiqueta
-**Meta:** >35% de conversão
-
-#### Audiência
-
-**Segmento:** Pedidos com cotação Enviali sem etiqueta
-
-**Critérios de Inclusão:**
-
-- `enviali_quote_received` = true
-- `orders_quoted_without_label` > 0
-- Pedido < 7 dias
-
-**Critérios de Exclusão:**
-
-- Etiqueta já emitida para o pedido
-- Pedido cancelado
-
-#### Canal e Timing
-
-**Canal Primário:** Push
-**Canal Fallback:** Email
-
-**Tipo:** Event-Based
-
-- Trigger: 24h após `Shipping Quote Carrier Selected` se etiqueta não emitida
-
-#### Conteúdo
-
-**Push Notification:**
-
-```
-Título: Seu cliente escolheu o frete! 🎉
-Corpo: Emita a etiqueta agora e envie o pedido com desconto.
-CTA: Emitir etiqueta
-Deep Link: loja://orders/{{event.order_id}}/label
-```
-
-#### Conversão
-
-**Evento de Conversão:** `Label Purchased`
-**Janela de Atribuição:** 48 horas
 
 ---
 
@@ -911,7 +856,7 @@ Agora você tem acesso a todas as funcionalidades:
 ✓ [Lista de benefícios]
 
 Próximos passos recomendados:
-1. Configure seu meio de pagamento (Pagali)
+1. Configure seu meio de pagamento
 2. Cadastre seus produtos
 3. Ative o Enviali para economizar no frete
 
@@ -922,7 +867,7 @@ Próximos passos recomendados:
 
 #### Conversão
 
-**Evento de Conversão:** `Pagali Registration Started` ou `Product Created`
+**Evento de Conversão:** `Gateway Registration Started` ou `Product Created`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -988,9 +933,9 @@ Como presente, aqui vai um cupom especial: [ANIVERSARIO20]
 
 ---
 
-## 3. Campanhas de Pagamentos (BC6)
+## 3. Campanhas de Gateway de Pagamento (BC6)
 
-### CAMP-015: Winback de Cadastro Pagali Abandonado
+### CAMP-015: Winback de Cadastro de Gateway Abandonado
 
 **ID:** CAMP-015
 **Categoria:** Winback
@@ -999,22 +944,22 @@ Como presente, aqui vai um cupom especial: [ANIVERSARIO20]
 
 #### Objetivo
 
-**Goal:** Recuperar lojistas que iniciaram cadastro do Pagali mas não completaram.
+**Goal:** Recuperar lojistas que iniciaram cadastro do gateway de pagamento mas não completaram.
 **KPI Primário:** Taxa de conclusão
 **Meta:** >25% de recuperação
 
 #### Audiência
 
-**Segmento:** Iniciou cadastro Pagali mas não completou
-**Tipo de Segmentação:** Inaction (Pagali Registration Started sem Pagali Registration Completed)
+**Segmento:** Iniciou cadastro do gateway mas não completou
+**Tipo de Segmentação:** Inaction (Gateway Registration Started sem Gateway Registration Completed)
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `Pagali Registration Started` sem `Pagali Registration Completed` em 24h
+- Inaction: Evento `Gateway Registration Started` sem `Gateway Registration Completed` em 24h
 
 **Critérios de Exclusão:**
 
-- Completou cadastro (`Pagali Registration Completed` disparado)
+- Completou cadastro (`Gateway Registration Completed` disparado)
 - Recebeu esta campanha < 5 dias
 
 #### Canal e Timing
@@ -1024,21 +969,21 @@ Como presente, aqui vai um cupom especial: [ANIVERSARIO20]
 
 **Tipo:** Inaction-Based
 
-- Trigger: 24h após `Pagali Registration Started` sem `Pagali Registration Completed`
+- Trigger: 24h após `Gateway Registration Started` sem `Gateway Registration Completed`
 
 #### Conteúdo
 
 **Email:**
 
 ```
-Subject: Complete seu cadastro no Pagali e comece a vender
+Subject: Complete seu cadastro de pagamento e comece a vender
 Preview: Faltam apenas alguns passos para receber pagamentos
 
 ---
 
 Olá {{profile.Name}},
 
-Você começou a configurar o Pagali mas não finalizou.
+Você começou a configurar seu meio de pagamento mas não finalizou.
 
 Sem um meio de pagamento, seus clientes não conseguem comprar na sua loja.
 
@@ -1058,7 +1003,7 @@ Dica: Tenha em mãos seus documentos para agilizar o processo.
 
 #### Conversão
 
-**Evento de Conversão:** `Pagali Registration Completed`
+**Evento de Conversão:** `Gateway Registration Completed`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1072,7 +1017,7 @@ Dica: Tenha em mãos seus documentos para agilizar o processo.
 
 #### Objetivo
 
-**Goal:** Educar lojistas sobre a importância de completar dados do Pagali.
+**Goal:** Educar lojistas sobre a importância de completar dados do gateway de pagamento.
 **KPI Primário:** Taxa de conclusão de etapa
 **Meta:** >30% de avanço
 
@@ -1104,13 +1049,13 @@ Dica: Tenha em mãos seus documentos para agilizar o processo.
 
 ```
 Subject: Por que pedimos informações de renda?
-Preview: Transparência sobre o processo de verificação do Pagali
+Preview: Transparência sobre o processo de verificação do gateway de pagamento
 
 ---
 
 Olá {{profile.Name}},
 
-Notamos que você parou no preenchimento de informações financeiras no Pagali.
+Notamos que você parou no preenchimento de informações financeiras do gateway de pagamento.
 
 Por que precisamos desses dados?
 → Segurança antifraude para proteger você e seus clientes
@@ -1127,14 +1072,14 @@ Seus dados são protegidos e usados apenas para verificação.
 #### Conversão
 
 **Tipo de Conversão:** Segmentação Inaction
-**Critério:** Evento `Pagali Registration Started` seguido por `Pagali Registration Completed` (próxima etapa concluída)
+**Critério:** Evento `Gateway Registration Started` seguido por `Gateway Registration Completed` (próxima etapa concluída)
 **Janela de Atribuição:** 7 dias
 
-> **Nota:** O evento `Pagali Registration Step Completed` foi removido. A conversão é medida via segmentação Inaction, verificando se o usuário avançou no cadastro (evento `Pagali Registration Completed` ou saída do status "pending").
+> **Nota:** O evento `Pagali Registration Step Completed` foi removido. A conversão é medida via segmentação Inaction, verificando se o usuário avançou no cadastro (evento `Gateway Registration Completed` ou saída do status "pending").
 
 ---
 
-### CAMP-017: Orientação para Mercado Pago (Fallback)
+### CAMP-017: Orientação para Gateway Alternativo (Fallback)
 
 **ID:** CAMP-017
 **Categoria:** Engagement
@@ -1143,13 +1088,13 @@ Seus dados são protegidos e usados apenas para verificação.
 
 #### Objetivo
 
-**Goal:** Guiar lojistas rejeitados no Pagali para alternativa Mercado Pago.
-**KPI Primário:** Taxa de configuração MP
+**Goal:** Guiar lojistas com gateway rejeitado para alternativa.
+**KPI Primário:** Taxa de configuração gateway alternativo
 **Meta:** >40% de conversão
 
 #### Audiência
 
-**Segmento:** Rejeitados no Pagali
+**Segmento:** Rejeitados no gateway de pagamento
 
 **Critérios de Inclusão:**
 
@@ -1158,7 +1103,7 @@ Seus dados são protegidos e usados apenas para verificação.
 
 **Critérios de Exclusão:**
 
-- Já configurou Mercado Pago
+- Já configurou gateway alternativo
 - Recebeu esta campanha < 7 dias
 
 #### Canal e Timing
@@ -1168,43 +1113,43 @@ Seus dados são protegidos e usados apenas para verificação.
 
 **Tipo:** Event-Based
 
-- Trigger: 2h após `Pagali Account Rejected`
+- Trigger: 2h após `Gateway Account Rejected`
 
 #### Conteúdo
 
 **Email:**
 
 ```
-Subject: Alternativa de pagamento: Mercado Pago
-Preview: Configure o Mercado Pago e comece a vender hoje
+Subject: Alternativa de pagamento disponível
+Preview: Configure um meio de pagamento alternativo e comece a vender hoje
 
 ---
 
 Olá {{profile.Name}},
 
-Infelizmente não foi possível aprovar sua conta no Pagali neste momento.
+Infelizmente não foi possível aprovar sua conta no gateway de pagamento neste momento.
 
-Mas não se preocupe! Você pode configurar o Mercado Pago como alternativa.
+Mas não se preocupe! Você pode configurar um meio de pagamento alternativo.
 
-Com o Mercado Pago você também recebe via:
+Com outros gateways você também recebe via:
 ✓ Pix
 ✓ Cartão de crédito
 ✓ Boleto
 
 A configuração é simples e rápida.
 
-[Configurar Mercado Pago]
+[Configurar meio de pagamento alternativo]
 
 ---
 
-Quer tentar o Pagali novamente? Entre em contato com nosso suporte.
+Quer tentar novamente? Entre em contato com nosso suporte.
 
 ---
 ```
 
 #### Conversão
 
-**Evento de Conversão:** `Mercado Pago Configured`
+**Evento de Conversão:** `Gateway Registration Completed` com `payment_gateway` diferente do gateway rejeitado
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1648,9 +1593,9 @@ Deep Link: loja://komea/opportunities
 
 ---
 
-## 6. Campanhas de Canais (BC11)
+## 6. Campanhas de Canais - Marketplaces (BC11)
 
-### CAMP-024: Jornada de Ativação Mercado Livre
+### CAMP-024: Jornada de Ativação de Marketplace
 
 **ID:** CAMP-024
 **Categoria:** Activation
@@ -1659,22 +1604,22 @@ Deep Link: loja://komea/opportunities
 
 #### Objetivo
 
-**Goal:** Guiar conclusão de todas as etapas de configuração do ML.
+**Goal:** Guiar conclusão de todas as etapas de configuração do marketplace.
 **KPI Primário:** Taxa de conclusão
 **Meta:** >35% de conversão
 
 #### Audiência
 
-**Segmento:** Conectou ML mas não completou configuração inicial
-**Tipo de Segmentação:** Inaction (ML Connected sem ML Initial Setup Completed)
+**Segmento:** Conectou marketplace mas não completou configuração inicial
+**Tipo de Segmentação:** Inaction (Marketplace Connected sem Marketplace Initial Setup Completed) com filtro `marketplace = "mercado_livre"`
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `ML Connected` sem `ML Initial Setup Completed` em 48h
+- Inaction: Evento `Marketplace Connected` com `marketplace = "mercado_livre"` sem `Marketplace Initial Setup Completed` com `marketplace = "mercado_livre"` em 48h
 
 **Critérios de Exclusão:**
 
-- Completou configuração (`ML Initial Setup Completed` disparado)
+- Completou configuração (`Marketplace Initial Setup Completed` com `marketplace = "mercado_livre"` disparado)
 - Recebeu esta campanha < 5 dias
 
 #### Canal e Timing
@@ -1684,7 +1629,7 @@ Deep Link: loja://komea/opportunities
 
 **Tipo:** Inaction-Based
 
-- Trigger: 48h após `ML Connected` sem `ML Initial Setup Completed`
+- Trigger: 48h após `Marketplace Connected` (marketplace = "mercado_livre") sem `Marketplace Initial Setup Completed`
 
 #### Conteúdo
 
@@ -1714,12 +1659,12 @@ O Mercado Livre é o maior marketplace da América Latina. Seus produtos podem a
 
 #### Conversão
 
-**Evento de Conversão:** `ML Initial Setup Completed`
+**Evento de Conversão:** `Marketplace Initial Setup Completed` com `marketplace = "mercado_livre"`
 **Janela de Atribuição:** 7 dias
 
 ---
 
-### CAMP-025: Incentivo à Adesão do Canal Mercado Livre
+### CAMP-025: Incentivo à Adesão do Canal Marketplace
 
 **ID:** CAMP-025
 **Categoria:** Activation
@@ -1734,18 +1679,19 @@ O Mercado Livre é o maior marketplace da América Latina. Seus produtos podem a
 
 #### Audiência
 
-**Segmento:** Lojistas pagos sem ML conectado
+**Segmento:** Lojistas pagos sem marketplace conectado
+**Filtro:** `marketplace = "mercado_livre"`
 
 **Critérios de Inclusão:**
 
 - `is_paying_customer` = true
-- Sem evento `ML Connected` no histórico
+- Sem evento `Marketplace Connected` com `marketplace = "mercado_livre"` no histórico
 - `has_products` = true
 - `products_count` >= 5
 
 **Critérios de Exclusão:**
 
-- Já conectou ML (`ML Connected` disparado)
+- Já conectou ML (`Marketplace Connected` com `marketplace = "mercado_livre"` disparado)
 - Recebeu esta campanha < 30 dias
 
 #### Canal e Timing
@@ -1786,12 +1732,12 @@ A integração é simples e seus produtos são sincronizados automaticamente.
 
 #### Conversão
 
-**Evento de Conversão:** `ML Connected`
+**Evento de Conversão:** `Marketplace Connected` com `marketplace = "mercado_livre"`
 **Janela de Atribuição:** 14 dias
 
 ---
 
-### CAMP-026: Incentivo ao Primeiro Anúncio ML
+### CAMP-026: Incentivo ao Primeiro Anúncio Marketplace
 
 **ID:** CAMP-026
 **Categoria:** Activation
@@ -1800,22 +1746,22 @@ A integração é simples e seus produtos são sincronizados automaticamente.
 
 #### Objetivo
 
-**Goal:** Incentivar envio do primeiro anúncio ao ML.
+**Goal:** Incentivar envio do primeiro anúncio ao marketplace.
 **KPI Primário:** Taxa de primeiro anúncio
 **Meta:** >40% de conversão
 
 #### Audiência
 
-**Segmento:** ML configurado, sem anúncios publicados
-**Tipo de Segmentação:** Inaction (ML Initial Setup Completed sem ML Ad Published)
+**Segmento:** Marketplace configurado, sem anúncios publicados
+**Tipo de Segmentação:** Inaction (Marketplace Initial Setup Completed sem Marketplace Ad Published) com filtro `marketplace = "mercado_livre"`
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `ML Initial Setup Completed` sem `ML Ad Published` em 72h
+- Inaction: Evento `Marketplace Initial Setup Completed` com `marketplace = "mercado_livre"` sem `Marketplace Ad Published` com `marketplace = "mercado_livre"` em 72h
 
 **Critérios de Exclusão:**
 
-- Publicou anúncios (`ML Ad Published` disparado)
+- Publicou anúncios (`Marketplace Ad Published` com `marketplace = "mercado_livre"` disparado)
 - Recebeu esta campanha < 7 dias
 
 #### Canal e Timing
@@ -1825,7 +1771,7 @@ A integração é simples e seus produtos são sincronizados automaticamente.
 
 **Tipo:** Inaction-Based
 
-- Trigger: 72h após `ML Initial Setup Completed` sem `ML Ad Published`
+- Trigger: 72h após `Marketplace Initial Setup Completed` (marketplace = "mercado_livre") sem `Marketplace Ad Published`
 
 #### Conteúdo
 
@@ -1840,12 +1786,12 @@ Deep Link: loja://hub/mercadolivre/ads
 
 #### Conversão
 
-**Evento de Conversão:** `ML Ad Published`
+**Evento de Conversão:** `Marketplace Ad Published` com `marketplace = "mercado_livre"`
 **Janela de Atribuição:** 7 dias
 
 ---
 
-### CAMP-027: Expansão de Catálogo ML
+### CAMP-027: Expansão de Catálogo Marketplace
 
 **ID:** CAMP-027
 **Categoria:** Engagement
@@ -1854,13 +1800,14 @@ Deep Link: loja://hub/mercadolivre/ads
 
 #### Objetivo
 
-**Goal:** Incentivar envio de mais produtos ao ML.
+**Goal:** Incentivar envio de mais produtos ao marketplace.
 **KPI Primário:** Aumento de anúncios
 **Meta:** +50% de anúncios em 30 dias
 
 #### Audiência
 
 **Segmento:** Poucos produtos anunciados no ML
+**Filtro:** `marketplace = "mercado_livre"`
 
 **Critérios de Inclusão:**
 
@@ -1907,7 +1854,7 @@ Dica: Comece pelos seus produtos mais vendidos na loja.
 
 #### Conversão
 
-**Evento de Conversão:** `ML Ad Published`
+**Evento de Conversão:** `Marketplace Ad Published` com `marketplace = "mercado_livre"`
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -1977,7 +1924,7 @@ Experimente converter alguns dos seus produtos mais populares para Premium.
 
 #### Conversão
 
-**Evento de Conversão:** `ML Ad Published` com `ad_type` = "premium"
+**Evento de Conversão:** `Marketplace Ad Published` com `marketplace = "mercado_livre"` e `ad_type` = "premium"
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -2016,3 +1963,5 @@ Para cada campanha, verificar antes do lançamento:
 | Data       | Versão | Alteração                            | Autor |
 | ---------- | ------ | ------------------------------------ | ----- |
 | 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases | RMH   |
+| 09/02/2026 | 1.1    | Campanhas BC6 gateway-agnósticas | RMH   |
+| 09/02/2026 | 1.2    | Campanhas BC11 marketplace-agnósticas (ML * → Marketplace *) | RMH   |

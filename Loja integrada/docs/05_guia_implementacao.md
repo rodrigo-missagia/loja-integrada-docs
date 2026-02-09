@@ -1,7 +1,7 @@
 # Guia de Implementação CleverTap - Loja Integrada
 
-**Versão:** 1.1
-**Data:** 26 de Janeiro de 2026
+**Versão:** 1.3
+**Data:** 09 de Fevereiro de 2026
 **Plataforma:** Web
 
 ---
@@ -100,7 +100,7 @@ Identity = {store_id}_{user_id}
 - **Sincronização em massa**: Propriedades da loja são atualizadas para todos os usuários via batch
 - **Campanhas segmentadas**: Permite segmentar por loja OU por usuário
 
-> **Documentação completa**: Ver [02_user_profile_schema.md](./02_user_profile_schema.md#user-identity-strategy) e [06_user_identity_sync_flow.md](./06_user_identity_sync_flow.md)
+> **Documentação completa**: Ver [02_user_profile_schema_simplified.md](./02_user_profile_schema_simplified.md) e [06_user_identity_sync_flow.md](./06_user_identity_sync_flow.md)
 
 ### 3.2 onUserLogin (Identificação)
 
@@ -115,7 +115,7 @@ clevertap.onUserLogin.push({
     // Required - Identity COMPOSTO
     Identity: compositeIdentity, // Ex: "store_12345_user_789"
 
-    // Recommended
+    // Recommended - Dados de contato (User-Level)
     Name: ownerName, // Nome do lojista
     Email: email, // Email
     Phone: phoneWithCountryCode, // Ex: +5511999999999
@@ -123,63 +123,73 @@ clevertap.onUserLogin.push({
     // IDs separados para lookup
     store_id: storeId, // ID da loja (para queries batch)
     user_id: userId, // ID do usuário (para queries individuais)
-
-    // Custom attributes
-    store_name: storeName,
-    account_type: accountType, // "pf" ou "pj"
-    current_plan: currentPlan, // "free", "starter", etc.
-    account_created_date: new Date(),
   },
 });
+
+// Nota: store_name, account_type, current_plan e demais propriedades
+// store-level são sincronizadas via DAG Airflow diário (Backend).
+// Ver 06_user_identity_sync_flow.md para detalhes.
 ```
 
 ### 3.3 Logout
 
 Ao fazer logout, não é necessário chamar método específico. O próximo `onUserLogin` criará uma nova sessão.
 
-### 3.4 Classificação de Propriedades: Loja vs Usuário
+### 3.4 Classificação de Propriedades: Store-Level vs User-Level vs Dual-Write
 
-As propriedades são classificadas em dois tipos com comportamentos de atualização distintos:
+As propriedades são classificadas em três categorias com mecanismos de atualização distintos:
 
-#### Propriedades de LOJA (Store-Level)
+#### Propriedades STORE-LEVEL (Backend — DAG Airflow diário)
 
-Atualizadas em **TODOS os usuários** da loja via batch sync (Airflow).
+Atualizadas em **TODOS os usuários** da loja via batch sync (Airflow). **Não devem ser atualizadas via frontend.**
 
-```javascript
-// Exemplo: Loja publicou o site - atualizar TODOS os usuários da loja
-// Isso é feito via batch, não no frontend
-
-// Propriedades de loja incluem:
-// - current_plan, plan_start_date, billing_cycle
-// - enviali_active, shipping_methods_active
-// - pagali_account_status, payment_methods_configured
-// - site_published, site_publish_date
-// - products_count, has_products
-// - mercado_livre_connected, ml_sales_count
-// - gmv_30d, visitas_30d (métricas agregadas)
+```text
+Propriedades Store-Level (20):
+  Conta:       store_id, store_name, account_type, state, city
+  Plano:       plan_start_date
+  Enviali:     enviali_active, shipping_methods_active, correios_direct_contract, enviali_balance_amount
+  Loggi:       loggi_active
+  Pagali:      pagali_account_status, payment_methods_configured, mercado_pago_configured
+  Produtos:    has_products
+  Komea/Site:  site_published
+  Marketplace: mercado_livre_connected
+  Fiscal:      nfe_configured, tax_regime
+  Métricas:    gmv_30d, visitas_30d, qtde_pedido_30d
 ```
 
-#### Propriedades de USUÁRIO (User-Level)
+> **Nota:** O frontend **não** faz `profile.push()` para estas propriedades. Ver [06_user_identity_sync_flow.md](./06_user_identity_sync_flow.md) para detalhes da DAG.
+
+#### Propriedades DUAL-WRITE (Frontend imediato + DAG diário)
+
+Propriedades de assinatura atualizadas **imediatamente** para o usuário ativo via SDK, e sincronizadas para **todos** os usuários da loja via DAG diário.
+
+```text
+Propriedades Dual-Write (3):
+  current_plan, billing_cycle, is_paying_customer
+```
+
+> **Motivo:** Quando o lojista contrata/muda de plano, o perfil dele precisa refletir imediatamente (para campanhas de confirmação). Mas outros usuários da mesma loja também precisam do plano atualizado — isso é feito pela DAG.
+
+#### Propriedades USER-LEVEL (Frontend SDK)
 
 Atualizadas **APENAS para o usuário específico** que executou a ação.
 
 ```javascript
-// Exemplo: Usuário abandonou checkout - atualizar APENAS este usuário
+// Exemplo: Usuário acessou a Komea
 clevertap.profile.push({
   Site: {
-    checkout_abandoned: true,
-    checkout_abandoned_step: "payment",
-    checkout_abandoned_date: new Date(),
+    komea_access_count: { $incr: 1 },
+    komea_last_access_date: new Date(),
   },
 });
 
-// Propriedades de usuário incluem:
-// - Name, Email, Phone
+// Propriedades User-Level:
+// - Name, Email, Phone (dados de contato)
 // - MSG-email, MSG-push (preferências de comunicação)
-// - checkout_abandoned, pagali_abandoned_step (jornada individual)
 // - komea_access_count, komea_last_access_date (uso individual)
-// - ultimo_login_painel (atividade individual)
 ```
+
+> **Nota:** Fluxos de abandono (checkout, cadastro Pagali) devem usar **segmentação Inaction no CleverTap** (evento de início "Did" AND evento de conclusão "Did not") em vez de propriedades de perfil.
 
 ### 3.5 Lookup Table: Loja → Usuários
 
@@ -220,21 +230,18 @@ clevertap.event.push("Event Name", {
 
 ### 4.2 Eventos de Logística (BC1, BC2, BC3)
 
-#### Enviali Activated
+#### Shipping Platform Activated
 
 ```javascript
-function trackEnvialiActivated(source) {
-  clevertap.event.push("Enviali Activated", {
+function trackShippingPlatformActivated(platform, source, fieldsCompleted) {
+  clevertap.event.push("Shipping Platform Activated", {
+    shipping_platform: platform, // "enviali", "fretnet", "melhor_envio", etc.
     activation_source: source, // "menu_lateral" | "komea"
+    fields_completed: fieldsCompleted, // ["address", "contact", "store_data"]
   });
 
-  // Atualizar perfil
-  clevertap.profile.push({
-    Site: {
-      enviali_active: true,
-      enviali_activation_date: new Date(),
-    },
-  });
+  // Nota: enviali_active e demais propriedades store-level são
+  // atualizadas via DAG Airflow diário (Backend).
 }
 ```
 
@@ -243,28 +250,23 @@ function trackEnvialiActivated(source) {
 ```javascript
 function trackLabelPurchased(labelData) {
   clevertap.event.push("Label Purchased", {
+    shipping_platform: labelData.shippingPlatform,
     order_id: labelData.orderId,
     carrier_name: labelData.carrierName,
+    carrier_type: labelData.carrierType, // "postal" | "private"
     amount: labelData.amount,
     payment_method: labelData.paymentMethod,
+    delivery_time: labelData.deliveryTime, // prazo em dias úteis
     is_first_purchase: labelData.isFirstPurchase,
     label_id: labelData.labelId,
   });
 
-  // Atualizar perfil
-  const profileUpdates = {
-    enviali_label_purchased: true,
-    enviali_labels_count: { $incr: 1 },
-    enviali_last_label_date: new Date(),
-    enviali_total_spent: { $incr: labelData.amount },
-    enviali_payment_method: labelData.paymentMethod,
-  };
+  // Nota: Propriedades de perfil (contadores, datas) foram removidas.
+  // Segmentação por contagem/data de etiquetas deve usar o próprio evento.
+  // Ver 02_user_profile_schema_simplified.md > "Segmentação via Eventos".
 
-  if (labelData.isFirstPurchase) {
-    profileUpdates["enviali_first_label_date"] = new Date();
-  }
-
-  clevertap.profile.push({ Site: profileUpdates });
+  // Nota: Este evento de monetização deve ser acompanhado de um evento
+  // "Charged" para o dashboard de receita do CleverTap. Ver seção 4.8.
 }
 ```
 
@@ -276,20 +278,14 @@ function trackLabelPurchased(labelData) {
 function trackLoggiActivated() {
   // Usar Shipping Method Enabled com carrier_name para Loggi
   clevertap.event.push("Shipping Method Enabled", {
+    shipping_platform: "enviali",
     carrier_name: "loggi",
     carrier_type: "private",
     is_correios: false,
-    activation_date: new Date().toISOString(),
   });
 
-  clevertap.profile.push({
-    Site: {
-      loggi_active: true,
-      loggi_activation_date: new Date(),
-      loggi_configured_not_used: true,
-      shipping_methods_active: { $add: ["loggi"] },
-    },
-  });
+  // Nota: loggi_active, shipping_methods_active e demais propriedades
+  // store-level são atualizadas via DAG Airflow diário (Backend).
 }
 ```
 
@@ -306,88 +302,100 @@ function trackSubscriptionCompleted(subscriptionData) {
     payment_method: subscriptionData.paymentMethod,
     coupon_used: subscriptionData.couponUsed,
     coupon_code: subscriptionData.couponCode || null,
+    discount_percentage: subscriptionData.discountPercentage || null,
     state: subscriptionData.state,
     city: subscriptionData.city,
     is_upgrade: subscriptionData.isUpgrade,
     previous_plan: subscriptionData.previousPlan || null,
   });
 
-  // Atualizar perfil
-  const profileUpdates = {
-    current_plan: subscriptionData.planName,
-    plan_start_date: new Date(),
-    billing_cycle: subscriptionData.billingCycle,
-    plan_price: subscriptionData.amount,
-    is_paying_customer: true,
-    total_subscriptions: { $incr: 1 },
-    subscription_value_total: { $incr: subscriptionData.amount },
-    last_plan_change_date: new Date(),
-    previous_plan: subscriptionData.previousPlan,
-    state: subscriptionData.state,
-    city: subscriptionData.city,
-    checkout_abandoned: false,
-  };
-
-  if (subscriptionData.couponUsed) {
-    profileUpdates["coupon_used"] = true;
-    profileUpdates["last_coupon_code"] = subscriptionData.couponCode;
-    profileUpdates["coupons_used_count"] = { $incr: 1 };
-  }
-
-  clevertap.profile.push({ Site: profileUpdates });
-}
-```
-
-### 4.4 Eventos do Pagali (BC6)
-
-#### Pagali Registration Step Completed
-
-```javascript
-function trackPagaliStepCompleted(stepName, stepNumber) {
-  clevertap.event.push("Pagali Registration Step Completed", {
-    step_name: stepName,
-    step_number: stepNumber,
-  });
-
+  // DUAL-WRITE: Atualizar perfil APENAS com as 3 props de assinatura.
+  // Estas props são atualizadas imediatamente para o usuário ativo via SDK,
+  // e sincronizadas para TODOS os usuários da loja via DAG Airflow diário.
+  // Ver 06_user_identity_sync_flow.md > seção "DUAL-WRITE".
   clevertap.profile.push({
     Site: {
-      pagali_registration_step: stepName,
+      current_plan: subscriptionData.planName,
+      billing_cycle: subscriptionData.billingCycle,
+      is_paying_customer: true,
     },
   });
+
+  // Nota: Este evento de monetização deve ser acompanhado de um evento
+  // "Charged" para o dashboard de receita do CleverTap. Ver seção 4.8.
 }
 ```
 
-#### Pagali Account Approved
+### 4.4 Eventos de Gateway de Pagamento (BC6)
+
+#### Gateway Registration Started
 
 ```javascript
-function trackPagaliApproved(paymentMethodsEnabled) {
-  clevertap.event.push("Pagali Account Approved", {
+function trackGatewayRegistrationStarted(gateway, entrySource) {
+  clevertap.event.push("Gateway Registration Started", {
+    payment_gateway: gateway, // "pagali", "mercado_pago", "app_max", etc.
+    entry_source: entrySource, // "komea" | "panel" | "direct"
+  });
+
+  // Nota: pagali_account_status e demais propriedades store-level são
+  // atualizadas via DAG Airflow diário (Backend).
+}
+```
+
+#### Gateway Registration Completed
+
+```javascript
+function trackGatewayRegistrationCompleted(gateway, accountType, documentsSubmitted, stepsCompleted) {
+  clevertap.event.push("Gateway Registration Completed", {
+    payment_gateway: gateway,
+    account_type: accountType,
+    documents_submitted: documentsSubmitted,
+    steps_completed: stepsCompleted,
+  });
+
+  // Nota: pagali_account_status e demais propriedades store-level são
+  // atualizadas via DAG Airflow diário (Backend).
+}
+```
+
+#### Gateway Account Approved
+
+```javascript
+function trackGatewayAccountApproved(gateway, paymentMethodsEnabled) {
+  clevertap.event.push("Gateway Account Approved", {
+    payment_gateway: gateway,
     payment_methods_enabled: paymentMethodsEnabled,
     approval_date: new Date().toISOString(),
   });
 
-  const profileUpdates = {
-    pagali_account_status: "approved",
-    pagali_verification_status: "verified",
-    pagali_approval_date: new Date(),
-  };
+  // Nota: pagali_account_status, payment_methods_configured e demais
+  // propriedades store-level são atualizadas via DAG Airflow diário (Backend).
+}
+```
 
-  // Marcar cada método habilitado
-  if (paymentMethodsEnabled.includes("pix")) {
-    profileUpdates["pagali_pix_enabled"] = true;
-  }
-  if (paymentMethodsEnabled.includes("credit_card")) {
-    profileUpdates["pagali_credit_card_enabled"] = true;
-  }
-  if (paymentMethodsEnabled.includes("boleto")) {
-    profileUpdates["pagali_boleto_enabled"] = true;
-  }
+#### Gateway Account Rejected
 
-  profileUpdates["payment_methods_configured"] = {
-    $add: paymentMethodsEnabled,
-  };
+```javascript
+function trackGatewayAccountRejected(gateway, rejectionReason) {
+  clevertap.event.push("Gateway Account Rejected", {
+    payment_gateway: gateway,
+    rejection_reason: rejectionReason,
+  });
 
-  clevertap.profile.push({ Site: profileUpdates });
+  // Nota: pagali_account_status é atualizado via DAG Airflow diário (Backend).
+}
+```
+
+#### Payment Method Enabled
+
+```javascript
+function trackPaymentMethodEnabled(gateway, paymentMethodType) {
+  clevertap.event.push("Payment Method Enabled", {
+    payment_gateway: gateway,
+    payment_method_type: paymentMethodType, // "pix" | "credit_card" | "boleto"
+  });
+
+  // Nota: payment_methods_configured é atualizado via DAG Airflow diário (Backend).
 }
 ```
 
@@ -406,26 +414,33 @@ function trackProductCreated(productData) {
     is_first_product: productData.isFirstProduct,
   });
 
-  const profileUpdates = {
-    has_products: true,
-    products_count: { $incr: 1 },
-    last_product_date: new Date(),
-    product_creation_method: productData.creationMethod,
-  };
-
-  if (productData.isFirstProduct) {
-    profileUpdates["first_product_date"] = new Date();
-  }
-
-  if (productData.creationMethod === "ai_komea") {
-    profileUpdates["products_created_via_ai"] = { $incr: 1 };
-  }
-
-  clevertap.profile.push({ Site: profileUpdates });
+  // Nota: has_products é atualizado via DAG Airflow diário (Backend).
+  // Contadores e datas de produto são segmentáveis via evento.
 }
 ```
 
 ### 4.6 Eventos da Komea (BC7, BC8, BC9)
+
+#### Komea Accessed
+
+```javascript
+function trackKomeaAccessed(entrySource, sessionNumber) {
+  clevertap.event.push("Komea Accessed", {
+    entry_source: entrySource, // "menu" | "dashboard" | "notification"
+    session_number: sessionNumber,
+  });
+
+  // USER-LEVEL: Atualizar perfil com props individuais do usuário.
+  // Estas propriedades são legítimas no frontend pois representam
+  // atividade individual (não da loja).
+  clevertap.profile.push({
+    Site: {
+      komea_access_count: { $incr: 1 },
+      komea_last_access_date: new Date(),
+    },
+  });
+}
+```
 
 #### Komea Site Published
 
@@ -437,14 +452,7 @@ function trackKomeaSitePublished(publishData) {
     time_to_publish: publishData.timeToPublish, // em horas
   });
 
-  clevertap.profile.push({
-    Site: {
-      site_published: true,
-      site_publish_date: new Date(),
-      site_publish_source: "komea",
-      had_payment_before_publish: publishData.hasPaymentMethod,
-    },
-  });
+  // Nota: site_published é atualizado via DAG Airflow diário (Backend).
 }
 ```
 
@@ -458,46 +466,68 @@ function trackKomeaActionExecuted(actionData) {
     result: actionData.result, // "success" | "failed"
   });
 
-  clevertap.profile.push({
-    Site: {
-      komea_actions_executed: { $incr: 1 },
-    },
-  });
+  // Nota: Contagem de ações é segmentável via count do evento.
 }
 ```
 
-### 4.7 Eventos do Mercado Livre (BC11)
+### 4.7 Eventos de Marketplace (BC11)
 
-#### ML Ad Published
+#### Marketplace Ad Published
 
 ```javascript
-function trackMlAdPublished(adData) {
-  clevertap.event.push("ML Ad Published", {
+function trackMarketplaceAdPublished(marketplace, adData) {
+  clevertap.event.push("Marketplace Ad Published", {
+    marketplace: marketplace, // "mercado_livre", "magalu", "allever", "compre_sua_peca"
     product_id: adData.productId,
-    ad_type: adData.adType, // "classic" | "premium"
+    ad_type: adData.adType, // "classic" | "premium" (específico do marketplace)
     ad_id: adData.adId,
     is_first_ad: adData.isFirstAd,
   });
 
-  const profileUpdates = {
-    ml_total_ads_count: { $incr: 1 },
-    ml_last_ad_date: new Date(),
-    ml_first_ad_sent: true,
-  };
+  // Nota: Propriedades de perfil ml_* foram removidas do schema simplificado.
+  // Contadores e datas de anúncios são segmentáveis via evento.
+  // mercado_livre_connected é atualizado via DAG Airflow diário (Backend).
 
-  if (adData.adType === "premium") {
-    profileUpdates["ml_premium_ads_count"] = { $incr: 1 };
-  } else {
-    profileUpdates["ml_classic_ads_count"] = { $incr: 1 };
-  }
-
-  if (adData.isFirstAd) {
-    profileUpdates["ml_first_ad_date"] = new Date();
-  }
-
-  clevertap.profile.push({ Site: profileUpdates });
+  // Nota: Este evento de monetização deve ser acompanhado de um evento
+  // "Charged" para o dashboard de receita do CleverTap. Ver seção 4.8.
 }
 ```
+
+### 4.8 Evento Charged — Padrão de Monetização
+
+O CleverTap usa o evento reservado `Charged` para rastreamento de receita. Todo evento de monetização (marcado com ⭐ no tracking plan) deve disparar um `Charged` correspondente.
+
+> **Documentação completa:** Ver [03_event_specifications.md](./03_event_specifications.md) para implementação detalhada de cada evento Charged.
+
+#### Exemplo: Subscription Completed → Charged
+
+```javascript
+// Após disparar "Subscription Completed", disparar o Charged:
+clevertap.event.push("Charged", {
+  Amount: subscriptionData.amount,
+  Currency: "BRL",
+  "Payment Mode": subscriptionData.paymentMethod,
+  "Charged ID": "sub_" + Date.now(),
+  Items: [
+    {
+      Name: `Plano ${subscriptionData.planName}`,
+      Category: "subscription",
+      "Billing Cycle": subscriptionData.billingCycle,
+      "Coupon Code": subscriptionData.couponCode || null,
+    },
+  ],
+});
+```
+
+#### Eventos que geram Charged
+
+| Evento Original              | Categoria de Receita   |
+| ---------------------------- | ---------------------- |
+| `Subscription Completed`     | Assinatura de plano    |
+| `Label Purchased`            | Etiqueta de envio      |
+| `Shipping Balance Added`     | Saldo plataforma envio |
+| `Marketplace Ad Published`   | Comissão marketplace   |
+| `Marketplace Sale Completed` | Comissão marketplace   |
 
 ---
 
@@ -510,8 +540,9 @@ function trackMlAdPublished(adData) {
 ```javascript
 clevertap.profile.push({
   Site: {
-    current_plan: "pro",
-    last_activity_date: new Date(),
+    current_plan: "aceleração",
+    billing_cycle: "annual",
+    is_paying_customer: true,
   },
 });
 ```
@@ -521,39 +552,35 @@ clevertap.profile.push({
 ```javascript
 clevertap.profile.push({
   Site: {
-    products_count: { $incr: 1 },
-    total_spent: { $incr: 99.9 },
+    komea_access_count: { $incr: 1 },
   },
 });
 ```
 
-#### Append (Adicionar à lista)
+#### Append (Adicionar à lista) — Apenas Backend/DAG
 
 ```javascript
-clevertap.profile.push({
-  Site: {
-    shipping_methods_active: { $add: ["loggi", "correios_pac"] },
-    komea_assistants_used: { $add: ["data_assistant"] },
-  },
-});
+// Nota: operações append em shipping_methods_active e payment_methods_configured
+// são executadas exclusivamente via DAG Airflow (Backend).
+// Exemplo do payload que a DAG envia via Upload API:
+// { "shipping_methods_active": { "$add": ["loggi", "correios_pac"] } }
+// { "payment_methods_configured": { "$add": ["pix", "credit_card"] } }
 ```
 
-#### Remove (Remover da lista)
+#### Remove (Remover da lista) — Apenas Backend/DAG
 
 ```javascript
-clevertap.profile.push({
-  Site: {
-    shipping_methods_active: { $remove: ["jadlog"] },
-  },
-});
+// Nota: operações remove também são executadas via DAG Airflow (Backend).
+// Exemplo: { "shipping_methods_active": { "$remove": ["jadlog"] } }
 ```
 
 ### 5.2 Boas Práticas
 
-1. **Agrupar updates**: Quando possível, agrupar múltiplas atualizações em uma única chamada
-2. **Usar increment para contadores**: Nunca sobrescrever contadores, sempre incrementar
+1. **Frontend apenas para User-Level e Dual-Write**: O SDK só deve fazer `profile.push()` para propriedades user-level (Komea) e dual-write (Subscription). Todas as demais são Backend.
+2. **Usar increment para contadores**: Nunca sobrescrever contadores, sempre incrementar (ex: `komea_access_count`)
 3. **Validar tipos**: Garantir que tipos estão corretos (string, number, boolean, date)
 4. **Limites de arrays**: Arrays suportam máximo de 100 itens
+5. **Segmentação por eventos**: Preferir segmentação via eventos para datas (first/last), contadores e histórico — ver [02_user_profile_schema_simplified.md](./02_user_profile_schema_simplified.md)
 
 ---
 
@@ -605,6 +632,9 @@ clevertap.notifications.push({
 | Hub de Canais        | `loja://hub`                     |
 | Mercado Livre        | `loja://hub/mercadolivre`        |
 | Anúncios ML          | `loja://hub/mercadolivre/ads`    |
+| Magalu               | `loja://hub/magalu`              |
+| Allever              | `loja://hub/allever`             |
+| Compre Sua Peça      | `loja://hub/compre-sua-peca`     |
 
 ---
 
@@ -727,6 +757,9 @@ Para exclusão de dados conforme LGPD, entrar em contato com o suporte CleverTap
 
 ## Changelog
 
-| Data       | Versão | Alteração                            | Autor |
-| ---------- | ------ | ------------------------------------ | ----- |
-| 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases | RMH   |
+| Data       | Versão | Alteração                                                                                                   | Autor |
+| ---------- | ------ | ----------------------------------------------------------------------------------------------------------- | ----- |
+| 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases                                                                        | RMH   |
+| 09/02/2026 | 1.1    | Eventos BC6 gateway-agnósticos + nomes de planos atualizados                                                | RMH   |
+| 09/02/2026 | 1.2    | Eventos BC11 marketplace-agnósticos (ML * → Marketplace *)                                                  | RMH   |
+| 09/02/2026 | 1.3    | Revisão integral: schema simplificado, ~40 profile.push removidos, Backend-first/DUAL-WRITE, Komea Accessed | RMH   |

@@ -1,7 +1,7 @@
 # User Identity Sync Flow - Loja Integrada
 
-**Versão:** 1.1
-**Data:** 26 de Janeiro de 2026
+**Versão:** 2.0
+**Data:** 09 de Fevereiro de 2026
 **Plataforma:** CleverTap + Airflow
 
 ---
@@ -175,18 +175,31 @@ def read_store_properties(**context):
     stores = query_data_lake("""
         SELECT
             store_id,
-            -- Propriedades de estado da loja
+            -- Plano e assinatura
             current_plan,
             plan_start_date,
             billing_cycle,
             is_paying_customer,
+            -- Komea / Site
             site_published,
-            site_publish_date,
+            -- Enviali (BC1/BC2)
             enviali_active,
+            shipping_methods_active,
+            correios_direct_contract,
+            enviali_balance_amount,
+            -- Loggi (BC3)
+            loggi_active,
+            -- Pagali (BC6)
             pagali_account_status,
+            payment_methods_configured,
+            mercado_pago_configured,
+            -- Produtos (BC5)
             has_products,
-            products_count,
+            -- Marketplace (BC11)
             mercado_livre_connected,
+            -- Fiscal (BC10)
+            nfe_configured,
+            tax_regime,
             -- Métricas agregadas
             gmv_30d,
             visitas_30d,
@@ -239,18 +252,31 @@ def prepare_payloads(**context):
             "identity": item['composite_identity'],
             "type": "profile",
             "profileData": {
-                # Propriedades de estado da loja
+                # Plano e assinatura
                 "current_plan": item['properties']['current_plan'],
                 "plan_start_date": item['properties']['plan_start_date'],
                 "billing_cycle": item['properties']['billing_cycle'],
                 "is_paying_customer": item['properties']['is_paying_customer'],
+                # Komea / Site
                 "site_published": item['properties']['site_published'],
-                "site_publish_date": item['properties']['site_publish_date'],
+                # Enviali (BC1/BC2)
                 "enviali_active": item['properties']['enviali_active'],
+                "shipping_methods_active": item['properties']['shipping_methods_active'],
+                "correios_direct_contract": item['properties']['correios_direct_contract'],
+                "enviali_balance_amount": item['properties']['enviali_balance_amount'],
+                # Loggi (BC3)
+                "loggi_active": item['properties']['loggi_active'],
+                # Pagali (BC6)
                 "pagali_account_status": item['properties']['pagali_account_status'],
+                "payment_methods_configured": item['properties']['payment_methods_configured'],
+                "mercado_pago_configured": item['properties']['mercado_pago_configured'],
+                # Produtos (BC5)
                 "has_products": item['properties']['has_products'],
-                "products_count": item['properties']['products_count'],
+                # Marketplace (BC11)
                 "mercado_livre_connected": item['properties']['mercado_livre_connected'],
+                # Fiscal (BC10)
+                "nfe_configured": item['properties']['nfe_configured'],
+                "tax_regime": item['properties']['tax_regime'],
                 # Métricas agregadas
                 "gmv_30d": item['properties']['gmv_30d'],
                 "visitas_30d": item['properties']['visitas_30d'],
@@ -342,22 +368,28 @@ flowchart TD
 
 Propriedades que representam o **estado da loja** e devem ser iguais para todos os usuários.
 
-| Propriedade               | Descrição                   |
-| ------------------------- | --------------------------- |
-| `current_plan`            | Plano atual da loja         |
-| `plan_start_date`         | Data de início do plano     |
-| `billing_cycle`           | Ciclo de cobrança           |
-| `is_paying_customer`      | Se é cliente pagante        |
-| `site_published`          | Se o site está publicado    |
-| `site_publish_date`       | Data de publicação          |
-| `enviali_active`          | Se Enviali está ativo       |
-| `pagali_account_status`   | Status do Pagali            |
-| `has_products`            | Se tem produtos cadastrados |
-| `products_count`          | Quantidade de produtos      |
-| `mercado_livre_connected` | Se ML está conectado        |
-| `gmv_30d`                 | GMV últimos 30 dias         |
-| `visitas_30d`             | Visitas últimos 30 dias     |
-| `qtde_pedido_30d`         | Pedidos últimos 30 dias     |
+| Propriedade                  | Descrição                      |
+| ---------------------------- | ------------------------------ |
+| `current_plan`               | Plano atual da loja            |
+| `plan_start_date`            | Data de início do plano        |
+| `billing_cycle`              | Ciclo de cobrança              |
+| `is_paying_customer`         | Se é cliente pagante           |
+| `site_published`             | Se o site está publicado       |
+| `enviali_active`             | Se Enviali está ativo          |
+| `shipping_methods_active`    | Lista de métodos ativos        |
+| `correios_direct_contract`   | Contrato direto Correios       |
+| `enviali_balance_amount`     | Saldo Enviali                  |
+| `loggi_active`               | Se Loggi está ativa            |
+| `pagali_account_status`      | Status do Pagali               |
+| `payment_methods_configured` | Meios de pagamento ativos      |
+| `mercado_pago_configured`    | Se Mercado Pago está config.   |
+| `has_products`               | Se tem produtos cadastrados    |
+| `mercado_livre_connected`    | Se ML está conectado           |
+| `nfe_configured`             | Se NF está configurada         |
+| `tax_regime`                 | Regime tributário              |
+| `gmv_30d`                    | GMV últimos 30 dias            |
+| `visitas_30d`                | Visitas últimos 30 dias        |
+| `qtde_pedido_30d`            | Pedidos últimos 30 dias        |
 
 ### USER-LEVEL (Eventos client-side)
 
@@ -368,8 +400,22 @@ Propriedades que representam **ações individuais** do usuário.
 | `komea_access_count`     | Usuário acessa Komea        |
 | `komea_last_access_date` | Último acesso à Komea       |
 | `MSG-email`, `MSG-push`  | Usuário altera preferências |
-| `ultimo_login_painel`    | Usuário faz login           |
 
+### DUAL-WRITE (Frontend + Backend diário)
+
+Propriedades de assinatura são atualizadas em dois momentos:
+
+1. **Imediato (Frontend):** Quando o usuário completa `Subscription Completed`, o SDK atualiza o perfil DESTE usuário
+2. **Diário (Backend):** O DAG sincroniza para TODOS os usuários da loja
+
+| Propriedade          | Evento Frontend          |
+| -------------------- | ------------------------ |
+| `current_plan`       | `Subscription Completed` |
+| `billing_cycle`      | `Subscription Completed` |
+| `is_paying_customer` | `Subscription Completed` |
+
+> Nota: Entre o update frontend e o sync diário, outros usuários da mesma loja podem ter dados desatualizados (até 24h).
+>
 > **Nota sobre Inaction:** Propriedades de abandono (`checkout_abandoned`, `checkout_abandoned_step`, `pagali_abandoned_step`) foram removidas. Fluxos de abandono devem usar **segmentação Inaction no CleverTap** (ex: evento de início "Did" AND evento de conclusão "Did not" nos últimos X dias).
 
 ---
@@ -474,6 +520,7 @@ sequenceDiagram
 
 ## Changelog
 
-| Data       | Versão | Alteração                            | Autor |
-| ---------- | ------ | ------------------------------------ | ----- |
-| 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases | RMH   |
+| Data       | Versão | Alteração                                                                                                           | Autor |
+| ---------- | ------ | ------------------------------------------------------------------------------------------------------------------- | ----- |
+| 09/02/2026 | 2.0    | +8 props no DAG, DUAL-WRITE para Subscription, cleanup USER-LEVEL, reorganização SQL/payload por BC                 | RMH   |
+| 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases                                                                                | RMH   |
