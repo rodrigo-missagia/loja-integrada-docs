@@ -1,8 +1,8 @@
 # Campaign Specifications - Loja Integrada
 
-**Versão:** 1.2
-**Data:** 26 de Janeiro de 2026
-**Última Atualização:** Revisão conforme Tracking Plan v1.1
+**Versão:** 2.0
+**Data:** 12 de Março de 2026
+**Última Atualização:** Tradução completa: eventos e propriedades de EN para PT
 **Plataforma:** CleverTap
 
 ---
@@ -36,11 +36,11 @@
 #### Audiência
 
 **Segmento:** Lojistas sem Enviali ativo
-**Tamanho Estimado:** Variável (lojistas com `enviali_active = false` ou null)
+**Tamanho Estimado:** Variável (lojistas com `enviali_ativo = false` ou null)
 
 **Critérios de Inclusão:**
 
-- `enviali_active` != true
+- `enviali_ativo` != true
 - Conta criada há mais de 24 horas
 - Tem pelo menos 1 produto cadastrado OU está no plano pago
 
@@ -57,7 +57,7 @@
 
 **Tipo:** Event-Based + Scheduled
 
-- Trigger inicial: 48h após `Store Created` se `enviali_active` = false
+- Trigger inicial: 48h após `Store Created` se `enviali_ativo` = false
 - Reminder: 7 dias após primeiro envio se ainda não ativou
 
 #### Conteúdo
@@ -95,7 +95,7 @@ Deep Link: loja://enviali/activate
 
 #### Conversão
 
-**Evento de Conversão:** `Shipping Platform Activated`
+**Evento de Conversão:** `Plataforma Envio Ativada`
 **Janela de Atribuição:** 7 dias
 
 #### Frequency Capping
@@ -121,13 +121,13 @@ Deep Link: loja://enviali/activate
 #### Audiência
 
 **Segmento:** Enviali ativado mas sem método de envio configurado
-**Tipo de Segmentação:** Inaction (Shipping Platform Activated sem Shipping Method Enabled)
+**Tipo de Segmentação:** Inaction (Plataforma Envio Ativada sem Metodo Envio Ativado)
 
 **Critérios de Inclusão:**
 
-- `enviali_active` = true
+- `enviali_ativo` = true
 - `shipping_methods_count` = 0 ou null
-- Inaction: Evento `Shipping Platform Activated` sem `Shipping Method Enabled` em 24h
+- Inaction: Evento `Plataforma Envio Ativada` sem `Metodo Envio Ativado` em 24h
 
 **Critérios de Exclusão:**
 
@@ -141,7 +141,7 @@ Deep Link: loja://enviali/activate
 
 **Tipo:** Inaction-Based
 
-- Trigger: 24h após `Shipping Platform Activated` sem `Shipping Method Enabled`
+- Trigger: 24h após `Plataforma Envio Ativada` sem `Metodo Envio Ativado`
 
 #### Conteúdo
 
@@ -178,7 +178,7 @@ Leva menos de 2 minutos!
 
 #### Conversão
 
-**Evento de Conversão:** `Shipping Method Enabled`
+**Evento de Conversão:** `Metodo Envio Ativado`
 **Janela de Atribuição:** 48 horas
 
 ---
@@ -199,11 +199,11 @@ Leva menos de 2 minutos!
 #### Audiência
 
 **Segmento:** Enviali ativo, sem transportadora
-**Tipo de Segmentação:** Inaction (Shipping Platform Activated sem Shipping Method Enabled)
+**Tipo de Segmentação:** Inaction (Plataforma Envio Ativada sem Metodo Envio Ativado)
 
 **Critérios de Inclusão:**
 
-- `enviali_active` = true
+- `enviali_ativo` = true
 - `shipping_methods_count` = 0 ou null
 
 **Critérios de Exclusão:**
@@ -218,7 +218,7 @@ Leva menos de 2 minutos!
 
 **Tipo:** Inaction-Based
 
-- Trigger: 48h após `Shipping Platform Activated` sem `Shipping Method Enabled`
+- Trigger: 48h após `Plataforma Envio Ativada` sem `Metodo Envio Ativado`
 
 #### Conteúdo
 
@@ -242,7 +242,7 @@ Deep Link: loja://enviali/carriers
 
 #### Conversão
 
-**Evento de Conversão:** `Shipping Method Enabled`
+**Evento de Conversão:** `Metodo Envio Ativado`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -266,7 +266,7 @@ Deep Link: loja://enviali/carriers
 
 **Critérios de Inclusão:**
 
-- `enviali_active` = true
+- `enviali_ativo` = true
 - `shipping_methods_count` > 0
 - `enviali_label_purchased` = false ou null
 - Tem pelo menos 1 pedido nos últimos 30 dias
@@ -313,7 +313,7 @@ Que tal experimentar?
 
 #### Conversão
 
-**Evento de Conversão:** `Label Purchased`
+**Evento de Conversão:** `Etiqueta Comprada`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -334,11 +334,11 @@ Que tal experimentar?
 #### Audiência
 
 **Segmento:** Iniciou fluxo de emissão mas não comprou
-**Tipo de Segmentação:** Inaction (Label Flow Started sem Label Purchased)
+**Tipo de Segmentação:** Inaction (Fluxo Etiqueta Iniciado sem Etiqueta Comprada)
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `Label Flow Started` sem `Label Purchased` em 2h
+- Inaction: Evento `Fluxo Etiqueta Iniciado` sem `Etiqueta Comprada` em 2h
 
 **Critérios de Exclusão:**
 
@@ -352,7 +352,7 @@ Que tal experimentar?
 
 **Tipo:** Inaction-Based
 
-- Trigger: 2h após `Label Flow Started` sem `Label Purchased`
+- Trigger: 2h após `Fluxo Etiqueta Iniciado` sem `Etiqueta Comprada`
 
 #### Conteúdo
 
@@ -367,7 +367,7 @@ Deep Link: loja://enviali/labels
 
 #### Conversão
 
-**Evento de Conversão:** `Label Purchased`
+**Evento de Conversão:** `Etiqueta Comprada`
 **Janela de Atribuição:** 48 horas
 
 ---
@@ -391,7 +391,7 @@ Deep Link: loja://enviali/labels
 
 **Critérios de Inclusão:**
 
-- Evento `Label Purchased` disparado
+- Evento `Etiqueta Comprada` disparado
 
 #### Canal e Timing
 
@@ -400,7 +400,7 @@ Deep Link: loja://enviali/labels
 
 **Tipo:** Event-Based
 
-- Trigger: Imediato após `Label Purchased`
+- Trigger: Imediato após `Etiqueta Comprada`
 
 #### Conteúdo
 
@@ -417,8 +417,8 @@ Olá {{profile.Name}},
 Sua etiqueta foi emitida com sucesso!
 
 📦 Pedido: #{{event.order_id}}
-🚚 Transportadora: {{event.carrier_name}}
-💰 Valor: R$ {{event.amount}}
+🚚 Transportadora: {{event.nome_transportadora}}
+💰 Valor: R$ {{event.valor}}
 📍 Rastreio: {{event.tracking_code}}
 
 Próximos passos:
@@ -433,7 +433,7 @@ Próximos passos:
 
 #### Conversão
 
-**Evento de Conversão:** `Order Shipped`
+**Evento de Conversão:** `Pedido Enviado`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -500,7 +500,7 @@ Você já emitiu {{profile.enviali_labels_count}} etiquetas e economizou bastant
 
 #### Conversão
 
-**Evento de Conversão:** `Label Purchased`
+**Evento de Conversão:** `Etiqueta Comprada`
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -524,14 +524,14 @@ Você já emitiu {{profile.enviali_labels_count}} etiquetas e economizou bastant
 
 **Critérios de Inclusão:**
 
-- `enviali_active` = true
-- Sem evento `Shipping Method Enabled` com `carrier_name` = "Loggi"
+- `enviali_ativo` = true
+- Sem evento `Metodo Envio Ativado` com `nome_transportadora` = "Loggi"
 - Localizado em região atendida pela Loggi
 
 **Critérios de Exclusão:**
 
 - Recebeu esta campanha < 14 dias
-- Já ativou Loggi (`Shipping Method Enabled` com `carrier_name` = "Loggi")
+- Já ativou Loggi (`Metodo Envio Ativado` com `nome_transportadora` = "Loggi")
 
 #### Canal e Timing
 
@@ -576,7 +576,7 @@ Com a Loggi você tem:
 
 #### Conversão
 
-**Evento de Conversão:** `Shipping Method Enabled` com `carrier_name` = "Loggi"
+**Evento de Conversão:** `Metodo Envio Ativado` com `nome_transportadora` = "Loggi"
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -597,12 +597,12 @@ Com a Loggi você tem:
 #### Audiência
 
 **Segmento:** Loggi ativada, sem etiqueta Loggi
-**Tipo de Segmentação:** Inaction (Shipping Method Enabled com carrier_name=Loggi sem Label Purchased com carrier_name=Loggi)
+**Tipo de Segmentação:** Inaction (Metodo Envio Ativado com nome_transportadora=Loggi sem Etiqueta Comprada com nome_transportadora=Loggi)
 
 **Critérios de Inclusão:**
 
-- `Shipping Method Enabled` com `carrier_name` = "Loggi" disparado
-- Sem `Label Purchased` com `carrier_name` = "Loggi"
+- `Metodo Envio Ativado` com `nome_transportadora` = "Loggi" disparado
+- Sem `Etiqueta Comprada` com `nome_transportadora` = "Loggi"
 
 **Critérios de Exclusão:**
 
@@ -616,7 +616,7 @@ Com a Loggi você tem:
 
 **Tipo:** Inaction-Based
 
-- Trigger: 72h após `Shipping Method Enabled` (carrier_name=Loggi) sem `Label Purchased` (carrier_name=Loggi)
+- Trigger: 72h após `Metodo Envio Ativado` (nome_transportadora=Loggi) sem `Etiqueta Comprada` (nome_transportadora=Loggi)
 
 #### Conteúdo
 
@@ -631,7 +631,7 @@ Deep Link: loja://enviali/labels
 
 #### Conversão
 
-**Evento de Conversão:** `Label Purchased` com `carrier_name` = "Loggi"
+**Evento de Conversão:** `Etiqueta Comprada` com `nome_transportadora` = "Loggi"
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -654,11 +654,11 @@ Deep Link: loja://enviali/labels
 #### Audiência
 
 **Segmento:** Iniciou checkout mas não completou assinatura
-**Tipo de Segmentação:** Inaction (Checkout Started sem Subscription Completed)
+**Tipo de Segmentação:** Inaction (Checkout Iniciado sem Assinatura Concluida)
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `Checkout Started` sem `Subscription Completed` em 1h
+- Inaction: Evento `Checkout Iniciado` sem `Assinatura Concluida` em 1h
 
 **Critérios de Exclusão:**
 
@@ -672,7 +672,7 @@ Deep Link: loja://enviali/labels
 
 **Tipo:** Inaction-Based
 
-- Trigger: 1h após `Checkout Started` sem `Subscription Completed`
+- Trigger: 1h após `Checkout Iniciado` sem `Assinatura Concluida`
 - Reminder: 24h se não converteu
 
 #### Conteúdo
@@ -681,19 +681,19 @@ Deep Link: loja://enviali/labels
 
 ```
 Subject: Você estava quase lá! Complete sua assinatura 🎯
-Preview: Seu carrinho com o plano {{event.plan_name}} está esperando
+Preview: Seu carrinho com o plano {{event.nome_plano}} está esperando
 
 ---
 
 Olá {{profile.Name}},
 
-Notamos que você começou a assinar o plano {{event.plan_name}} mas não finalizou.
+Notamos que você começou a assinar o plano {{event.nome_plano}} mas não finalizou.
 
 Não perca os benefícios:
 ✓ [Lista de benefícios do plano]
 
-{{if event.coupon_code}}
-E seu cupom {{event.coupon_code}} ainda está ativo!
+{{if event.codigo_cupom}}
+E seu cupom {{event.codigo_cupom}} ainda está ativo!
 {{/if}}
 
 [Continuar assinatura]
@@ -704,14 +704,14 @@ E seu cupom {{event.coupon_code}} ainda está ativo!
 **Variante B - Email (Benefício):**
 
 ```
-Subject: O plano {{event.plan_name}} está te esperando ✨
+Subject: O plano {{event.nome_plano}} está te esperando ✨
 Preview: Desbloqueie todas as funcionalidades da Loja Integrada
 
 ---
 
 Olá {{profile.Name}},
 
-Você selecionou o plano {{event.plan_name}} - uma ótima escolha!
+Você selecionou o plano {{event.nome_plano}} - uma ótima escolha!
 
 Com ele você terá acesso a:
 ✓ [Benefícios específicos do plano]
@@ -731,7 +731,7 @@ Complete sua assinatura e comece a crescer.
 
 #### Conversão
 
-**Evento de Conversão:** `Subscription Completed`
+**Evento de Conversão:** `Assinatura Concluida`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -755,8 +755,8 @@ Complete sua assinatura e comece a crescer.
 
 **Critérios de Inclusão:**
 
-- `is_paying_customer` = true
-- Último `payment_method` em `Subscription Completed` = "boleto"
+- `cliente_pagante` = true
+- Último `meio_pagamento` em `Assinatura Concluida` = "boleto"
 - Assinatura ativa
 
 **Critérios de Exclusão:**
@@ -799,7 +799,7 @@ Vantagens do pagamento por cartão:
 
 #### Conversão
 
-**Evento de Conversão:** `Subscription Completed` com `payment_method` = "credit_card"
+**Evento de Conversão:** `Assinatura Concluida` com `meio_pagamento` = "credit_card"
 **Janela de Atribuição:** 30 dias
 
 ---
@@ -823,7 +823,7 @@ Vantagens do pagamento por cartão:
 
 **Critérios de Inclusão:**
 
-- Evento `Subscription Completed` disparado
+- Evento `Assinatura Concluida` disparado
 
 #### Canal e Timing
 
@@ -831,26 +831,26 @@ Vantagens do pagamento por cartão:
 
 **Tipo:** Event-Based
 
-- Trigger: Imediato após `Subscription Completed`
+- Trigger: Imediato após `Assinatura Concluida`
 
 #### Conteúdo
 
 **Email:**
 
 ```
-Subject: Bem-vindo ao plano {{event.plan_name}}! 🎉
+Subject: Bem-vindo ao plano {{event.nome_plano}}! 🎉
 Preview: Sua assinatura foi confirmada
 
 ---
 
 Olá {{profile.Name}},
 
-Parabéns! Sua assinatura do plano {{event.plan_name}} foi confirmada.
+Parabéns! Sua assinatura do plano {{event.nome_plano}} foi confirmada.
 
 📋 Detalhes da assinatura:
-• Plano: {{event.plan_name}}
-• Ciclo: {{event.billing_cycle}}
-• Valor: R$ {{event.amount}}
+• Plano: {{event.nome_plano}}
+• Ciclo: {{event.ciclo_cobranca}}
+• Valor: R$ {{event.valor}}
 
 Agora você tem acesso a todas as funcionalidades:
 ✓ [Lista de benefícios]
@@ -867,7 +867,7 @@ Próximos passos recomendados:
 
 #### Conversão
 
-**Evento de Conversão:** `Gateway Registration Started` ou `Product Created`
+**Evento de Conversão:** `Cadastro Gateway Iniciado` ou `Produto Criado`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -892,7 +892,7 @@ Próximos passos recomendados:
 **Critérios de Inclusão:**
 
 - `first_paid_plan_date` = exatamente 1 ano atrás
-- `is_paying_customer` = true
+- `cliente_pagante` = true
 
 #### Canal e Timing
 
@@ -917,7 +917,7 @@ Olá {{profile.Name}},
 Hoje faz 1 ano que você é assinante da Loja Integrada!
 
 Nesse tempo, sua loja cresceu muito:
-• {{profile.products_count}} produtos cadastrados
+• {{profile.qtd_produtos}} produtos cadastrados
 • {{profile.enviali_labels_count}} etiquetas emitidas
 • E muito mais...
 
@@ -951,15 +951,15 @@ Como presente, aqui vai um cupom especial: [ANIVERSARIO20]
 #### Audiência
 
 **Segmento:** Iniciou cadastro do gateway mas não completou
-**Tipo de Segmentação:** Inaction (Gateway Registration Started sem Gateway Registration Completed)
+**Tipo de Segmentação:** Inaction (Cadastro Gateway Iniciado sem Cadastro Gateway Concluido)
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `Gateway Registration Started` sem `Gateway Registration Completed` em 24h
+- Inaction: Evento `Cadastro Gateway Iniciado` sem `Cadastro Gateway Concluido` em 24h
 
 **Critérios de Exclusão:**
 
-- Completou cadastro (`Gateway Registration Completed` disparado)
+- Completou cadastro (`Cadastro Gateway Concluido` disparado)
 - Recebeu esta campanha < 5 dias
 
 #### Canal e Timing
@@ -969,7 +969,7 @@ Como presente, aqui vai um cupom especial: [ANIVERSARIO20]
 
 **Tipo:** Inaction-Based
 
-- Trigger: 24h após `Gateway Registration Started` sem `Gateway Registration Completed`
+- Trigger: 24h após `Cadastro Gateway Iniciado` sem `Cadastro Gateway Concluido`
 
 #### Conteúdo
 
@@ -1003,7 +1003,7 @@ Dica: Tenha em mãos seus documentos para agilizar o processo.
 
 #### Conversão
 
-**Evento de Conversão:** `Gateway Registration Completed`
+**Evento de Conversão:** `Cadastro Gateway Concluido`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1072,10 +1072,10 @@ Seus dados são protegidos e usados apenas para verificação.
 #### Conversão
 
 **Tipo de Conversão:** Segmentação Inaction
-**Critério:** Evento `Gateway Registration Started` seguido por `Gateway Registration Completed` (próxima etapa concluída)
+**Critério:** Evento `Cadastro Gateway Iniciado` seguido por `Cadastro Gateway Concluido` (próxima etapa concluída)
 **Janela de Atribuição:** 7 dias
 
-> **Nota:** O evento `Pagali Registration Step Completed` foi removido. A conversão é medida via segmentação Inaction, verificando se o usuário avançou no cadastro (evento `Gateway Registration Completed` ou saída do status "pending").
+> **Nota:** O evento `Pagali Registration Step Completed` foi removido. A conversão é medida via segmentação Inaction, verificando se o usuário avançou no cadastro (evento `Cadastro Gateway Concluido` ou saída do status "pending").
 
 ---
 
@@ -1113,7 +1113,7 @@ Seus dados são protegidos e usados apenas para verificação.
 
 **Tipo:** Event-Based
 
-- Trigger: 2h após `Gateway Account Rejected`
+- Trigger: 2h após `Conta Gateway Rejeitada`
 
 #### Conteúdo
 
@@ -1149,7 +1149,7 @@ Quer tentar novamente? Entre em contato com nosso suporte.
 
 #### Conversão
 
-**Evento de Conversão:** `Gateway Registration Completed` com `payment_gateway` diferente do gateway rejeitado
+**Evento de Conversão:** `Cadastro Gateway Concluido` com `gateway_pagamento` diferente do gateway rejeitado
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1172,15 +1172,15 @@ Quer tentar novamente? Entre em contato com nosso suporte.
 #### Audiência
 
 **Segmento:** Iniciou criação de produto mas não completou
-**Tipo de Segmentação:** Inaction (Product Creation Started sem Product Created)
+**Tipo de Segmentação:** Inaction (Criacao Produto Iniciada sem Produto Criado)
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `Product Creation Started` sem `Product Created` em 2h
+- Inaction: Evento `Criacao Produto Iniciada` sem `Produto Criado` em 2h
 
 **Critérios de Exclusão:**
 
-- Criou produto (`Product Created` disparado)
+- Criou produto (`Produto Criado` disparado)
 - Recebeu esta campanha < 3 dias
 
 #### Canal e Timing
@@ -1190,7 +1190,7 @@ Quer tentar novamente? Entre em contato com nosso suporte.
 
 **Tipo:** Inaction-Based
 
-- Trigger: 2h após `Product Creation Started` sem `Product Created`
+- Trigger: 2h após `Criacao Produto Iniciada` sem `Produto Criado`
 
 #### Conteúdo
 
@@ -1232,7 +1232,7 @@ Dica: Fotos de boa qualidade aumentam muito as vendas!
 
 #### Conversão
 
-**Evento de Conversão:** `Product Created`
+**Evento de Conversão:** `Produto Criado`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1256,8 +1256,8 @@ Dica: Fotos de boa qualidade aumentam muito as vendas!
 
 **Critérios de Inclusão:**
 
-- Evento `Product Created` com `is_first_product` = true
-- `products_count` = 1
+- Evento `Produto Criado` com `is_first_product` = true
+- `qtd_produtos` = 1
 
 **Critérios de Exclusão:**
 
@@ -1325,7 +1325,7 @@ Uma boa descrição deve:
 
 #### Conversão
 
-**Evento de Conversão:** `Product Created` (segundo produto ou edição)
+**Evento de Conversão:** `Produto Criado` (segundo produto ou edição)
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -1348,15 +1348,15 @@ Uma boa descrição deve:
 #### Audiência
 
 **Segmento:** Acessou Komea mas não completou personalização
-**Tipo de Segmentação:** Inaction (Komea Accessed sem Komea Customization Completed)
+**Tipo de Segmentação:** Inaction (Komea Acessada sem Komea Personalizacao Concluida)
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `Komea Accessed` sem `Komea Customization Completed` em 24h
+- Inaction: Evento `Komea Acessada` sem `Komea Personalizacao Concluida` em 24h
 
 **Critérios de Exclusão:**
 
-- Completou personalização (`Komea Customization Completed` disparado)
+- Completou personalização (`Komea Personalizacao Concluida` disparado)
 - Recebeu esta campanha < 5 dias
 
 #### Canal e Timing
@@ -1366,7 +1366,7 @@ Uma boa descrição deve:
 
 **Tipo:** Inaction-Based
 
-- Trigger: 24h após `Komea Accessed` sem `Komea Customization Completed`
+- Trigger: 24h após `Komea Acessada` sem `Komea Personalizacao Concluida`
 
 #### Conteúdo
 
@@ -1381,7 +1381,7 @@ Deep Link: loja://komea/customize
 
 #### Conversão
 
-**Evento de Conversão:** `Komea Customization Completed`
+**Evento de Conversão:** `Komea Personalizacao Concluida`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1405,8 +1405,8 @@ Deep Link: loja://komea/customize
 
 **Critérios de Inclusão:**
 
-- `site_published` = false
-- `has_products` = true (pelo menos 1 produto)
+- `site_publicado` = false
+- `tem_produtos` = true (pelo menos 1 produto)
 - Conta criada há mais de 48h
 
 **Critérios de Exclusão:**
@@ -1435,7 +1435,7 @@ Preview: Publique seu site e comece a vender
 
 Olá {{profile.Name}},
 
-Sua loja tem {{profile.products_count}} produto(s) cadastrado(s), mas ainda está em modo de manutenção.
+Sua loja tem {{profile.qtd_produtos}} produto(s) cadastrado(s), mas ainda está em modo de manutenção.
 
 Isso significa que ninguém consegue acessar sua loja!
 
@@ -1463,7 +1463,7 @@ CTA Secundário: Depois
 
 #### Conversão
 
-**Evento de Conversão:** `Komea Site Published`
+**Evento de Conversão:** `Komea Site Publicado`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1489,7 +1489,7 @@ CTA Secundário: Depois
 
 - `komea_access_count` = 0 ou null
 - Conta criada há mais de 30 dias
-- `is_paying_customer` = true OU teve vendas nos últimos 30 dias
+- `cliente_pagante` = true OU teve vendas nos últimos 30 dias
 
 **Critérios de Exclusão:**
 
@@ -1534,7 +1534,7 @@ Tudo isso com comandos simples, como se estivesse conversando.
 
 #### Conversão
 
-**Evento de Conversão:** `Komea Accessed`
+**Evento de Conversão:** `Komea Acessada`
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -1588,7 +1588,7 @@ Deep Link: loja://komea/opportunities
 
 #### Conversão
 
-**Evento de Conversão:** `Komea Accessed`
+**Evento de Conversão:** `Komea Acessada`
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -1611,15 +1611,15 @@ Deep Link: loja://komea/opportunities
 #### Audiência
 
 **Segmento:** Conectou marketplace mas não completou configuração inicial
-**Tipo de Segmentação:** Inaction (Marketplace Connected sem Marketplace Initial Setup Completed) com filtro `marketplace = "mercado_livre"`
+**Tipo de Segmentação:** Inaction (Marketplace Conectado sem Marketplace Config Inicial Concluida) com filtro `marketplace = "mercado_livre"`
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `Marketplace Connected` com `marketplace = "mercado_livre"` sem `Marketplace Initial Setup Completed` com `marketplace = "mercado_livre"` em 48h
+- Inaction: Evento `Marketplace Conectado` com `marketplace = "mercado_livre"` sem `Marketplace Config Inicial Concluida` com `marketplace = "mercado_livre"` em 48h
 
 **Critérios de Exclusão:**
 
-- Completou configuração (`Marketplace Initial Setup Completed` com `marketplace = "mercado_livre"` disparado)
+- Completou configuração (`Marketplace Config Inicial Concluida` com `marketplace = "mercado_livre"` disparado)
 - Recebeu esta campanha < 5 dias
 
 #### Canal e Timing
@@ -1629,7 +1629,7 @@ Deep Link: loja://komea/opportunities
 
 **Tipo:** Inaction-Based
 
-- Trigger: 48h após `Marketplace Connected` (marketplace = "mercado_livre") sem `Marketplace Initial Setup Completed`
+- Trigger: 48h após `Marketplace Conectado` (marketplace = "mercado_livre") sem `Marketplace Config Inicial Concluida`
 
 #### Conteúdo
 
@@ -1659,7 +1659,7 @@ O Mercado Livre é o maior marketplace da América Latina. Seus produtos podem a
 
 #### Conversão
 
-**Evento de Conversão:** `Marketplace Initial Setup Completed` com `marketplace = "mercado_livre"`
+**Evento de Conversão:** `Marketplace Config Inicial Concluida` com `marketplace = "mercado_livre"`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1684,14 +1684,14 @@ O Mercado Livre é o maior marketplace da América Latina. Seus produtos podem a
 
 **Critérios de Inclusão:**
 
-- `is_paying_customer` = true
-- Sem evento `Marketplace Connected` com `marketplace = "mercado_livre"` no histórico
-- `has_products` = true
-- `products_count` >= 5
+- `cliente_pagante` = true
+- Sem evento `Marketplace Conectado` com `marketplace = "mercado_livre"` no histórico
+- `tem_produtos` = true
+- `qtd_produtos` >= 5
 
 **Critérios de Exclusão:**
 
-- Já conectou ML (`Marketplace Connected` com `marketplace = "mercado_livre"` disparado)
+- Já conectou ML (`Marketplace Conectado` com `marketplace = "mercado_livre"` disparado)
 - Recebeu esta campanha < 30 dias
 
 #### Canal e Timing
@@ -1715,7 +1715,7 @@ Preview: Conecte o Mercado Livre e alcance milhões de compradores
 
 Olá {{profile.Name}},
 
-Você tem {{profile.products_count}} produtos na sua loja. Que tal vendê-los também no Mercado Livre?
+Você tem {{profile.qtd_produtos}} produtos na sua loja. Que tal vendê-los também no Mercado Livre?
 
 Por que vender no Mercado Livre?
 🌎 Maior marketplace da América Latina
@@ -1732,7 +1732,7 @@ A integração é simples e seus produtos são sincronizados automaticamente.
 
 #### Conversão
 
-**Evento de Conversão:** `Marketplace Connected` com `marketplace = "mercado_livre"`
+**Evento de Conversão:** `Marketplace Conectado` com `marketplace = "mercado_livre"`
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -1753,15 +1753,15 @@ A integração é simples e seus produtos são sincronizados automaticamente.
 #### Audiência
 
 **Segmento:** Marketplace configurado, sem anúncios publicados
-**Tipo de Segmentação:** Inaction (Marketplace Initial Setup Completed sem Marketplace Ad Published) com filtro `marketplace = "mercado_livre"`
+**Tipo de Segmentação:** Inaction (Marketplace Config Inicial Concluida sem Marketplace Anuncio Publicado) com filtro `marketplace = "mercado_livre"`
 
 **Critérios de Inclusão:**
 
-- Inaction: Evento `Marketplace Initial Setup Completed` com `marketplace = "mercado_livre"` sem `Marketplace Ad Published` com `marketplace = "mercado_livre"` em 72h
+- Inaction: Evento `Marketplace Config Inicial Concluida` com `marketplace = "mercado_livre"` sem `Marketplace Anuncio Publicado` com `marketplace = "mercado_livre"` em 72h
 
 **Critérios de Exclusão:**
 
-- Publicou anúncios (`Marketplace Ad Published` com `marketplace = "mercado_livre"` disparado)
+- Publicou anúncios (`Marketplace Anuncio Publicado` com `marketplace = "mercado_livre"` disparado)
 - Recebeu esta campanha < 7 dias
 
 #### Canal e Timing
@@ -1771,7 +1771,7 @@ A integração é simples e seus produtos são sincronizados automaticamente.
 
 **Tipo:** Inaction-Based
 
-- Trigger: 72h após `Marketplace Initial Setup Completed` (marketplace = "mercado_livre") sem `Marketplace Ad Published`
+- Trigger: 72h após `Marketplace Config Inicial Concluida` (marketplace = "mercado_livre") sem `Marketplace Anuncio Publicado`
 
 #### Conteúdo
 
@@ -1786,7 +1786,7 @@ Deep Link: loja://hub/mercadolivre/ads
 
 #### Conversão
 
-**Evento de Conversão:** `Marketplace Ad Published` com `marketplace = "mercado_livre"`
+**Evento de Conversão:** `Marketplace Anuncio Publicado` com `marketplace = "mercado_livre"`
 **Janela de Atribuição:** 7 dias
 
 ---
@@ -1812,7 +1812,7 @@ Deep Link: loja://hub/mercadolivre/ads
 **Critérios de Inclusão:**
 
 - `ml_total_ads_count` > 0 e < 10
-- `products_count` > `ml_products_sent` + 5
+- `qtd_produtos` > `ml_products_sent` + 5
 
 **Critérios de Exclusão:**
 
@@ -1839,7 +1839,7 @@ Preview: Aumente suas vendas enviando mais anúncios
 
 Olá {{profile.Name}},
 
-Você tem {{profile.ml_total_ads_count}} produtos no Mercado Livre, mas {{profile.products_count}} na sua loja.
+Você tem {{profile.ml_total_ads_count}} produtos no Mercado Livre, mas {{profile.qtd_produtos}} na sua loja.
 
 Por que não enviar mais produtos?
 
@@ -1854,7 +1854,7 @@ Dica: Comece pelos seus produtos mais vendidos na loja.
 
 #### Conversão
 
-**Evento de Conversão:** `Marketplace Ad Published` com `marketplace = "mercado_livre"`
+**Evento de Conversão:** `Marketplace Anuncio Publicado` com `marketplace = "mercado_livre"`
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -1924,7 +1924,7 @@ Experimente converter alguns dos seus produtos mais populares para Premium.
 
 #### Conversão
 
-**Evento de Conversão:** `Marketplace Ad Published` com `marketplace = "mercado_livre"` e `ad_type` = "premium"
+**Evento de Conversão:** `Marketplace Anuncio Publicado` com `marketplace = "mercado_livre"` e `tipo_anuncio` = "premium"
 **Janela de Atribuição:** 14 dias
 
 ---
@@ -1965,3 +1965,4 @@ Para cada campanha, verificar antes do lançamento:
 | 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases | RMH   |
 | 09/02/2026 | 1.1    | Campanhas BC6 gateway-agnósticas | RMH   |
 | 09/02/2026 | 1.2    | Campanhas BC11 marketplace-agnósticas (ML * → Marketplace *) | RMH   |
+| 12/03/2026 | 2.0    | Tradução completa: eventos e propriedades de EN para PT | RMH   |

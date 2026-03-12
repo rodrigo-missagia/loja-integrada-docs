@@ -1,7 +1,7 @@
 # Event Specifications - Loja Integrada
 
-**Versão:** 1.2
-**Data:** 09 de Fevereiro de 2026
+**Versão:** 2.0
+**Data:** 12 de Março de 2026
 **Plataforma:** CleverTap
 
 ---
@@ -19,7 +19,7 @@
 
 ## 1. Eventos de Envio e Logística (BC1, BC2, BC3)
 
-### Shipping Platform Activated
+### Plataforma Envio Ativada
 
 **ID:** EVT-001
 **Categoria:** Logística
@@ -38,19 +38,19 @@ Clique no botão de ativação na página da plataforma de envio.
 
 | Propriedade           | Tipo          | Obrigatório | Descrição                      | Exemplo                                                                  |
 | --------------------- | ------------- | ----------- | ------------------------------ | ------------------------------------------------------------------------ |
-| `shipping_platform`   | String        | Sim         | Plataforma de envio            | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
-| `activation_source`   | String        | Sim         | Origem da ativação             | `"menu_lateral"`, `"komea"`                                              |
-| `fields_completed`    | Array[String] | Sim         | Campos preenchidos na ativação | `["address", "contact", "store_data"]`                                   |
+| `plataforma_envio`   | String        | Sim         | Plataforma de envio            | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
+| `origem_ativacao`   | String        | Sim         | Origem da ativação             | `"menu_lateral"`, `"komea"`                                              |
+| `campos_preenchidos`    | Array[String] | Sim         | Campos preenchidos na ativação | `["address", "contact", "store_data"]`                                   |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Shipping Platform Activated", {
-  shipping_platform: "enviali",
-  activation_source: "menu_lateral",
-  fields_completed: ["address", "contact", "store_data"],
+clevertap.event.push("Plataforma Envio Ativada", {
+  plataforma_envio: "enviali",
+  origem_ativacao: "menu_lateral",
+  campos_preenchidos: ["address", "contact", "store_data"],
 });
 
 // Atualizar perfil (quando platform === "enviali")
@@ -70,7 +70,7 @@ clevertap.profile.push({
 
 ---
 
-### Shipping Method Enabled
+### Metodo Envio Ativado
 
 **ID:** EVT-003
 **Categoria:** Logística
@@ -81,7 +81,7 @@ clevertap.profile.push({
 
 Disparado quando o lojista ativa um método de envio (Correios ou transportadora) em qualquer plataforma de envio.
 
-> **Nota:** Este evento absorve os antigos `Correios Activated` e `Loggi Activated`. Para filtrar por transportadora, use `carrier_name` na segmentação.
+> **Nota:** Este evento absorve os antigos `Correios Activated` e `Loggi Activated`. Para filtrar por transportadora, use `nome_transportadora` na segmentação.
 
 #### Trigger
 
@@ -91,23 +91,23 @@ Ativação de qualquer transportadora ou serviço dos Correios.
 
 | Propriedade           | Tipo          | Obrigatório | Descrição                       | Exemplo                                                                  |
 | --------------------- | ------------- | ----------- | ------------------------------- | ------------------------------------------------------------------------ |
-| `shipping_platform`   | String        | Sim         | Plataforma de envio             | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
-| `carrier_name`        | String        | Sim         | Nome da transportadora          | `"correios"`, `"loggi"`, `"jadlog"`                                      |
-| `carrier_type`        | String        | Sim         | Tipo da transportadora          | `"postal"`, `"private"`                                                  |
-| `is_correios`         | Boolean       | Sim         | É dos Correios                  | `true`                                                                   |
-| `services_enabled`    | Array[String] | Não         | Serviços habilitados (Correios) | `["pac", "sedex"]`                                                       |
+| `plataforma_envio`   | String        | Sim         | Plataforma de envio             | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
+| `nome_transportadora`        | String        | Sim         | Nome da transportadora          | `"correios"`, `"loggi"`, `"jadlog"`                                      |
+| `tipo_transportadora`        | String        | Sim         | Tipo da transportadora          | `"postal"`, `"private"`                                                  |
+| `eh_correios`         | Boolean       | Sim         | É dos Correios                  | `true`                                                                   |
+| `servicos_ativados`    | Array[String] | Não         | Serviços habilitados (Correios) | `["pac", "sedex"]`                                                       |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Shipping Method Enabled", {
-  shipping_platform: "enviali",
-  carrier_name: "correios",
-  carrier_type: "postal",
-  is_correios: true,
-  services_enabled: ["pac", "sedex"],
+clevertap.event.push("Metodo Envio Ativado", {
+  plataforma_envio: "enviali",
+  nome_transportadora: "correios",
+  tipo_transportadora: "postal",
+  eh_correios: true,
+  servicos_ativados: ["pac", "sedex"],
 });
 
 clevertap.profile.push({
@@ -120,7 +120,7 @@ clevertap.profile.push({
 
 ---
 
-### Label Flow Started
+### Fluxo Etiqueta Iniciado
 
 **ID:** EVT-004
 **Categoria:** Logística
@@ -139,32 +139,32 @@ Acesso à listagem de pedidos ou gerenciador de etiquetas com intenção de emis
 
 | Propriedade         | Tipo   | Obrigatório | Descrição                    | Exemplo                                                                  |
 | ------------------- | ------ | ----------- | ---------------------------- | ------------------------------------------------------------------------ |
-| `shipping_platform` | String | Sim         | Plataforma de envio          | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
-| `flow_source`       | String | Sim         | Origem do fluxo              | `"order_list"`, `"label_manager"`                                        |
-| `order_id`          | String | Não         | ID do pedido (se específico) | `"order_123456"`                                                         |
+| `plataforma_envio` | String | Sim         | Plataforma de envio          | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
+| `origem_fluxo`       | String | Sim         | Origem do fluxo              | `"order_list"`, `"label_manager"`                                        |
+| `id_pedido`          | String | Não         | ID do pedido (se específico) | `"order_123456"`                                                         |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Label Flow Started", {
-  shipping_platform: "enviali",
-  flow_source: "order_list",
-  order_id: "order_123456",
+clevertap.event.push("Fluxo Etiqueta Iniciado", {
+  plataforma_envio: "enviali",
+  origem_fluxo: "order_list",
+  id_pedido: "order_123456",
 });
 
 clevertap.profile.push({
   Site: {
     enviali_label_flow_accessed: true,
-    enviali_label_flow_source: "order_list",
+    enviali_label_origem_fluxo: "order_list",
   },
 });
 ```
 
 ---
 
-### Label Purchased 💰
+### Etiqueta Comprada 💰
 
 **ID:** EVT-005
 **Categoria:** Logística / Monetização
@@ -173,7 +173,7 @@ clevertap.profile.push({
 
 #### Descrição
 
-Disparado quando a compra da etiqueta é concluída com sucesso. Este é um evento de monetização. Consolida todas as transportadoras (Correios, Loggi, Jadlog, etc.) usando a propriedade `carrier_name`.
+Disparado quando a compra da etiqueta é concluída com sucesso. Este é um evento de monetização. Consolida todas as transportadoras (Correios, Loggi, Jadlog, etc.) usando a propriedade `nome_transportadora`.
 
 #### Trigger
 
@@ -183,31 +183,31 @@ Confirmação do sistema de que a etiqueta foi comprada.
 
 | Propriedade         | Tipo    | Obrigatório | Descrição                      | Exemplo                                                                  |
 | ------------------- | ------- | ----------- | ------------------------------ | ------------------------------------------------------------------------ |
-| `shipping_platform` | String  | Sim         | Plataforma de envio            | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
-| `order_id`          | String  | Sim         | ID do pedido                   | `"order_123456"`                                                         |
-| `carrier_name`      | String  | Sim         | Transportadora                 | `"correios_pac"`, `"loggi"`, `"jadlog"`                                  |
-| `carrier_type`      | String  | Sim         | Tipo da transportadora         | `"postal"`, `"private"`                                                  |
-| `amount`            | Number  | Sim         | Valor pago                     | `18.50`                                                                  |
-| `payment_method`    | String  | Sim         | Método de pagamento            | `"balance"`, `"card"`, `"pix"`                                           |
-| `delivery_time`     | Number  | Sim         | Prazo de entrega em dias úteis | `5`                                                                      |
-| `is_first_purchase` | Boolean | Sim         | Primeira compra de etiqueta    | `true`                                                                   |
-| `label_id`          | String  | Sim         | ID da etiqueta                 | `"label_789"`                                                            |
+| `plataforma_envio` | String  | Sim         | Plataforma de envio            | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
+| `id_pedido`          | String  | Sim         | ID do pedido                   | `"order_123456"`                                                         |
+| `nome_transportadora`      | String  | Sim         | Transportadora                 | `"correios_pac"`, `"loggi"`, `"jadlog"`                                  |
+| `tipo_transportadora`      | String  | Sim         | Tipo da transportadora         | `"postal"`, `"private"`                                                  |
+| `valor`            | Number  | Sim         | Valor pago                     | `18.50`                                                                  |
+| `meio_pagamento`    | String  | Sim         | Método de pagamento            | `"balance"`, `"card"`, `"pix"`                                           |
+| `prazo_entrega`     | Number  | Sim         | Prazo de entrega em dias úteis | `5`                                                                      |
+| `eh_primeira_compra` | Boolean | Sim         | Primeira compra de etiqueta    | `true`                                                                   |
+| `id_etiqueta`          | String  | Sim         | ID da etiqueta                 | `"label_789"`                                                            |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Label Purchased", {
-  shipping_platform: "enviali",
-  order_id: "order_123456",
-  carrier_name: "correios_pac",
-  carrier_type: "postal",
-  amount: 18.5,
-  payment_method: "balance",
-  delivery_time: 5,
-  is_first_purchase: true,
-  label_id: "label_789",
+clevertap.event.push("Etiqueta Comprada", {
+  plataforma_envio: "enviali",
+  id_pedido: "order_123456",
+  nome_transportadora: "correios_pac",
+  tipo_transportadora: "postal",
+  valor: 18.5,
+  meio_pagamento: "balance",
+  prazo_entrega: 5,
+  eh_primeira_compra: true,
+  id_etiqueta: "label_789",
 });
 
 // Evento Charged (monetização)
@@ -235,7 +235,7 @@ clevertap.profile.push({
     enviali_labels_count: { $incr: 1 },
     enviali_last_label_date: new Date(),
     enviali_total_spent: { $incr: 18.5 },
-    enviali_payment_method: "balance",
+    enviali_meio_pagamento: "balance",
   },
 });
 
@@ -263,11 +263,11 @@ if (carrierName === "loggi") {
 - Confirmação de compra realizada
 - Estímulo à recorrência de envios
 
-> **Nota:** Este evento consolida `Loggi Label Purchased` anterior. Para filtrar etiquetas Loggi, use `carrier_name = "loggi"` na segmentação.
+> **Nota:** Este evento consolida `Loggi Etiqueta Comprada` anterior. Para filtrar etiquetas Loggi, use `nome_transportadora = "loggi"` na segmentação.
 
 ---
 
-### Shipping Balance Added 💰
+### Saldo Envio Adicionado 💰
 
 **ID:** EVT-010
 **Categoria:** Logística / Monetização
@@ -286,21 +286,21 @@ Conclusão do pagamento para adicionar saldo.
 
 | Propriedade         | Tipo   | Obrigatório | Descrição           | Exemplo                                                                  |
 | ------------------- | ------ | ----------- | ------------------- | ------------------------------------------------------------------------ |
-| `shipping_platform` | String | Sim         | Plataforma de envio | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
-| `amount`            | Number | Sim         | Valor adicionado    | `100.00`                                                                 |
-| `payment_method`    | String | Sim         | Método de pagamento | `"card"`, `"pix"`                                                        |
-| `new_balance`       | Number | Sim         | Novo saldo total    | `150.00`                                                                 |
+| `plataforma_envio` | String | Sim         | Plataforma de envio | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
+| `valor`            | Number | Sim         | Valor adicionado    | `100.00`                                                                 |
+| `meio_pagamento`    | String | Sim         | Método de pagamento | `"card"`, `"pix"`                                                        |
+| `novo_saldo`       | Number | Sim         | Novo saldo total    | `150.00`                                                                 |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Shipping Balance Added", {
-  shipping_platform: "enviali",
-  amount: 100.0,
-  payment_method: "pix",
-  new_balance: 150.0,
+clevertap.event.push("Saldo Envio Adicionado", {
+  plataforma_envio: "enviali",
+  valor: 100.0,
+  meio_pagamento: "pix",
+  novo_saldo: 150.0,
 });
 
 // Evento Charged (monetização)
@@ -324,7 +324,7 @@ clevertap.event.push("Charged", {
 clevertap.profile.push({
   Site: {
     enviali_has_balance: true,
-    enviali_balance_amount: 150.0,
+    enviali_balance_valor: 150.0,
     enviali_balance_added: true,
   },
 });
@@ -332,7 +332,7 @@ clevertap.profile.push({
 
 ---
 
-### Order Shipped
+### Pedido Enviado
 
 **ID:** EVT-015
 **Categoria:** Logística
@@ -351,21 +351,21 @@ Confirmação de postagem do pedido.
 
 | Propriedade         | Tipo   | Obrigatório | Descrição                | Exemplo                                                                  |
 | ------------------- | ------ | ----------- | ------------------------ | ------------------------------------------------------------------------ |
-| `shipping_platform` | String | Sim         | Plataforma de envio      | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
-| `order_id`          | String | Sim         | ID do pedido             | `"order_123456"`                                                         |
-| `carrier_name`      | String | Sim         | Transportadora utilizada | `"correios_pac"`                                                         |
-| `tracking_code`     | String | Sim         | Código de rastreio       | `"BR123456789BR"`                                                        |
+| `plataforma_envio` | String | Sim         | Plataforma de envio      | `"enviali"`, `"fretnet"`, `"melhor_envio"`, `"mandabem"`, `"go_fretes"` |
+| `id_pedido`          | String | Sim         | ID do pedido             | `"order_123456"`                                                         |
+| `nome_transportadora`      | String | Sim         | Transportadora utilizada | `"correios_pac"`                                                         |
+| `codigo_rastreio`     | String | Sim         | Código de rastreio       | `"BR123456789BR"`                                                        |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Order Shipped", {
-  shipping_platform: "enviali",
-  order_id: "order_123456",
-  carrier_name: "correios_pac",
-  tracking_code: "BR123456789BR",
+clevertap.event.push("Pedido Enviado", {
+  plataforma_envio: "enviali",
+  id_pedido: "order_123456",
+  nome_transportadora: "correios_pac",
+  codigo_rastreio: "BR123456789BR",
 });
 
 clevertap.profile.push({
@@ -382,7 +382,7 @@ updateShipmentMilestone(shipmentsCount);
 
 ## 2. Eventos de Pagamentos e Assinatura (BC4, BC6)
 
-### Plans Page Viewed
+### Pagina Planos Visualizada
 
 **ID:** EVT-016
 **Categoria:** Monetização
@@ -401,23 +401,23 @@ Acesso à página de planos/preços.
 
 | Propriedade    | Tipo   | Obrigatório | Descrição        | Exemplo                           |
 | -------------- | ------ | ----------- | ---------------- | --------------------------------- |
-| `current_plan` | String | Sim         | Plano atual      | `"gratuito"`                      |
-| `referrer`     | String | Não         | Origem do acesso | `"dashboard"`, `"upgrade_banner"` |
+| `plano_atual` | String | Sim         | Plano atual      | `"gratuito"`                      |
+| `origem`     | String | Não         | Origem do acesso | `"dashboard"`, `"upgrade_banner"` |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Plans Page Viewed", {
-  current_plan: "gratuito",
-  referrer: "upgrade_banner",
+clevertap.event.push("Pagina Planos Visualizada", {
+  plano_atual: "gratuito",
+  origem: "upgrade_banner",
 });
 ```
 
 ---
 
-### Plan Selected
+### Plano Selecionado
 
 **ID:** EVT-017
 **Categoria:** Monetização
@@ -436,25 +436,25 @@ Clique em "Selecionar" ou "Assinar" em um plano.
 
 | Propriedade     | Tipo   | Obrigatório | Descrição         | Exemplo                 |
 | --------------- | ------ | ----------- | ----------------- | ----------------------- |
-| `plan_name`     | String | Sim         | Nome do plano     | `"aceleração"`          |
-| `billing_cycle` | String | Sim         | Ciclo de cobrança | `"monthly"`, `"annual"` |
-| `price`         | Number | Sim         | Preço do plano    | `79.90`                 |
+| `nome_plano`     | String | Sim         | Nome do plano     | `"aceleração"`          |
+| `ciclo_cobranca` | String | Sim         | Ciclo de cobrança | `"monthly"`, `"annual"` |
+| `preco`         | Number | Sim         | Preço do plano    | `79.90`                 |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Plan Selected", {
-  plan_name: "aceleração",
-  billing_cycle: "monthly",
-  price: 79.9,
+clevertap.event.push("Plano Selecionado", {
+  nome_plano: "aceleração",
+  ciclo_cobranca: "monthly",
+  preco: 79.9,
 });
 ```
 
 ---
 
-### Checkout Started
+### Checkout Iniciado
 
 **ID:** EVT-018
 **Categoria:** Monetização
@@ -473,23 +473,23 @@ Entrada na página de checkout/pagamento.
 
 | Propriedade      | Tipo   | Obrigatório | Descrição                  | Exemplo     |
 | ---------------- | ------ | ----------- | -------------------------- | ----------- |
-| `plan_name`      | String | Sim         | Nome do plano              | `"aceleração"` |
-| `billing_cycle`  | String | Sim         | Ciclo de cobrança          | `"annual"`  |
-| `coupon_code`    | String | Não         | Código de cupom aplicado   | `"PROMO20"` |
-| `original_price` | Number | Sim         | Preço original             | `79.90`     |
-| `final_price`    | Number | Sim         | Preço final (com desconto) | `63.92`     |
+| `nome_plano`      | String | Sim         | Nome do plano              | `"aceleração"` |
+| `ciclo_cobranca`  | String | Sim         | Ciclo de cobrança          | `"annual"`  |
+| `codigo_cupom`    | String | Não         | Código de cupom aplicado   | `"PROMO20"` |
+| `original_preco` | Number | Sim         | Preço original             | `79.90`     |
+| `final_preco`    | Number | Sim         | Preço final (com desconto) | `63.92`     |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Checkout Started", {
-  plan_name: "aceleração",
-  billing_cycle: "annual",
-  coupon_code: "PROMO20",
-  original_price: 79.9,
-  final_price: 63.92,
+clevertap.event.push("Checkout Iniciado", {
+  nome_plano: "aceleração",
+  ciclo_cobranca: "annual",
+  codigo_cupom: "PROMO20",
+  original_preco: 79.9,
+  final_preco: 63.92,
 });
 ```
 
@@ -499,7 +499,7 @@ clevertap.event.push("Checkout Started", {
 
 ---
 
-### Subscription Completed 💰
+### Assinatura Concluida 💰
 
 **ID:** EVT-019
 **Categoria:** Monetização
@@ -518,33 +518,33 @@ Confirmação do pagamento da assinatura.
 
 | Propriedade      | Tipo    | Obrigatório | Descrição                   | Exemplo                              |
 | ---------------- | ------- | ----------- | --------------------------- | ------------------------------------ |
-| `plan_name`      | String  | Sim         | Nome do plano               | `"aceleração"`                       |
-| `billing_cycle`  | String  | Sim         | Ciclo de cobrança           | `"annual"`                           |
-| `amount`         | Number  | Sim         | Valor pago                  | `63.92`                              |
-| `payment_method` | String  | Sim         | Método de pagamento         | `"credit_card"`, `"boleto"`, `"pix"` |
-| `coupon_used`    | Boolean | Sim         | Usou cupom                  | `true`                               |
-| `coupon_code`    | String  | Não         | Código do cupom             | `"PROMO20"`                          |
-| `state`          | String  | Sim         | Estado do lojista           | `"SP"`                               |
-| `city`           | String  | Sim         | Cidade do lojista           | `"São Paulo"`                        |
-| `is_upgrade`     | Boolean | Sim         | É upgrade de plano          | `true`                               |
-| `previous_plan`  | String  | Não         | Plano anterior (se upgrade) | `"gratuito"`                         |
+| `nome_plano`      | String  | Sim         | Nome do plano               | `"aceleração"`                       |
+| `ciclo_cobranca`  | String  | Sim         | Ciclo de cobrança           | `"annual"`                           |
+| `valor`         | Number  | Sim         | Valor pago                  | `63.92`                              |
+| `meio_pagamento` | String  | Sim         | Método de pagamento         | `"credit_card"`, `"boleto"`, `"pix"` |
+| `cupom_utilizado`    | Boolean | Sim         | Usou cupom                  | `true`                               |
+| `codigo_cupom`    | String  | Não         | Código do cupom             | `"PROMO20"`                          |
+| `estado`          | String  | Sim         | Estado do lojista           | `"SP"`                               |
+| `cidade`           | String  | Sim         | Cidade do lojista           | `"São Paulo"`                        |
+| `eh_upgrade`     | Boolean | Sim         | É upgrade de plano          | `true`                               |
+| `plano_anterior`  | String  | Não         | Plano anterior (se upgrade) | `"gratuito"`                         |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Subscription Completed", {
-  plan_name: "aceleração",
-  billing_cycle: "annual",
-  amount: 63.92,
-  payment_method: "credit_card",
-  coupon_used: true,
-  coupon_code: "PROMO20",
-  state: "SP",
-  city: "São Paulo",
-  is_upgrade: true,
-  previous_plan: "gratuito",
+clevertap.event.push("Assinatura Concluida", {
+  nome_plano: "aceleração",
+  ciclo_cobranca: "annual",
+  valor: 63.92,
+  meio_pagamento: "credit_card",
+  cupom_utilizado: true,
+  codigo_cupom: "PROMO20",
+  estado: "SP",
+  cidade: "São Paulo",
+  eh_upgrade: true,
+  plano_anterior: "gratuito",
 });
 
 // Evento Charged (monetização)
@@ -566,20 +566,20 @@ clevertap.event.push("Charged", {
 // Atualizar perfil completo
 clevertap.profile.push({
   Site: {
-    current_plan: "aceleração",
+    plano_atual: "aceleração",
     plan_start_date: new Date(),
-    billing_cycle: "annual",
-    plan_price: 63.92,
+    ciclo_cobranca: "annual",
+    plan_preco: 63.92,
     is_paying_customer: true,
     total_subscriptions: { $incr: 1 },
     subscription_value_total: { $incr: 63.92 },
     last_plan_change_date: new Date(),
-    previous_plan: "gratuito",
-    coupon_used: true,
-    last_coupon_code: "PROMO20",
+    plano_anterior: "gratuito",
+    cupom_utilizado: true,
+    last_codigo_cupom: "PROMO20",
     coupons_used_count: { $incr: 1 },
-    state: "SP",
-    city: "São Paulo",
+    estado: "SP",
+    cidade: "São Paulo",
   },
 });
 
@@ -600,7 +600,7 @@ if (isFirstPaidSubscription) {
 
 ---
 
-### Gateway Registration Started
+### Cadastro Gateway Iniciado
 
 **ID:** EVT-021
 **Categoria:** Pagamentos
@@ -619,24 +619,24 @@ Acesso à página de cadastro do gateway de pagamento.
 
 | Propriedade       | Tipo   | Obrigatório | Descrição              | Exemplo                                                            |
 | ----------------- | ------ | ----------- | ---------------------- | ------------------------------------------------------------------ |
-| `payment_gateway` | String | Sim         | Gateway de pagamento   | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
-| `entry_source`    | String | Sim         | Origem do acesso       | `"komea"`, `"panel"`, `"direct"` |
+| `gateway_pagamento` | String | Sim         | Gateway de pagamento   | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
+| `origem_entrada`    | String | Sim         | Origem do acesso       | `"komea"`, `"panel"`, `"direct"` |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Gateway Registration Started", {
-  payment_gateway: "pagali",
-  entry_source: "komea",
+clevertap.event.push("Cadastro Gateway Iniciado", {
+  gateway_pagamento: "pagali",
+  origem_entrada: "komea",
 });
 
 // Nota: Atributos de perfil pagali_* mantidos no schema
 clevertap.profile.push({
   Site: {
     pagali_registration_date: new Date(),
-    pagali_entry_source: "komea",
+    pagali_origem_entrada: "komea",
     pagali_account_status: "pending",
   },
 });
@@ -644,7 +644,7 @@ clevertap.profile.push({
 
 ---
 
-### Gateway Registration Completed
+### Cadastro Gateway Concluido
 
 **ID:** EVT-022
 **Categoria:** Pagamentos
@@ -655,7 +655,7 @@ clevertap.profile.push({
 
 Disparado quando o lojista finaliza o cadastro no gateway de pagamento e envia para análise.
 
-> **Nota:** Este evento absorve o antigo `Mercado Pago Configured`. Para rastrear configuração do Mercado Pago, use `payment_gateway = "mercado_pago"`.
+> **Nota:** Este evento absorve o antigo `Mercado Pago Configured`. Para rastrear configuração do Mercado Pago, use `gateway_pagamento = "mercado_pago"`.
 
 #### Trigger
 
@@ -665,28 +665,28 @@ Envio do cadastro para análise/aprovação.
 
 | Propriedade           | Tipo   | Obrigatório | Descrição                  | Exemplo                                                            |
 | --------------------- | ------ | ----------- | -------------------------- | ------------------------------------------------------------------ |
-| `payment_gateway`     | String | Sim         | Gateway de pagamento       | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
-| `account_type`        | String | Sim         | Tipo de conta              | `"pf"`, `"pj"` |
-| `documents_submitted` | Boolean | Sim        | Documentos enviados        | `true` |
-| `steps_completed`     | Number | Sim         | Etapas completadas         | `4` |
+| `gateway_pagamento`     | String | Sim         | Gateway de pagamento       | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
+| `tipo_conta`        | String | Sim         | Tipo de conta              | `"pf"`, `"pj"` |
+| `documentos_enviados` | Boolean | Sim        | Documentos enviados        | `true` |
+| `etapas_concluidas`     | Number | Sim         | Etapas completadas         | `4` |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Gateway Registration Completed", {
-  payment_gateway: "pagali",
-  account_type: "pj",
-  documents_submitted: true,
-  steps_completed: 4,
+clevertap.event.push("Cadastro Gateway Concluido", {
+  gateway_pagamento: "pagali",
+  tipo_conta: "pj",
+  documentos_enviados: true,
+  etapas_concluidas: 4,
 });
 
 // Nota: Atributos de perfil pagali_* mantidos no schema
 clevertap.profile.push({
   Site: {
     pagali_registration_completed: true,
-    pagali_account_type: "pj",
+    pagali_tipo_conta: "pj",
     pagali_account_status: "under_review",
   },
 });
@@ -694,7 +694,7 @@ clevertap.profile.push({
 
 ---
 
-### Gateway Account Approved
+### Conta Gateway Aprovada
 
 **ID:** EVT-023
 **Categoria:** Pagamentos
@@ -713,19 +713,19 @@ Notificação de aprovação da análise.
 
 | Propriedade               | Tipo          | Obrigatório | Descrição            | Exemplo                                                            |
 | ------------------------- | ------------- | ----------- | -------------------- | ------------------------------------------------------------------ |
-| `payment_gateway`         | String        | Sim         | Gateway de pagamento | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
-| `payment_methods_enabled` | Array[String] | Sim         | Meios liberados      | `["pix", "credit_card", "boleto"]` |
-| `approval_date`           | Date          | Sim         | Data da aprovação    | `"2026-01-26T14:00:00Z"` |
+| `gateway_pagamento`         | String        | Sim         | Gateway de pagamento | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
+| `meios_pagamento_ativados` | Array[String] | Sim         | Meios liberados      | `["pix", "credit_card", "boleto"]` |
+| `data_aprovacao`           | Date          | Sim         | Data da aprovação    | `"2026-01-26T14:00:00Z"` |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Gateway Account Approved", {
-  payment_gateway: "pagali",
-  payment_methods_enabled: ["pix", "credit_card", "boleto"],
-  approval_date: new Date().toISOString(),
+clevertap.event.push("Conta Gateway Aprovada", {
+  gateway_pagamento: "pagali",
+  meios_pagamento_ativados: ["pix", "credit_card", "boleto"],
+  data_aprovacao: new Date().toISOString(),
 });
 
 // Nota: Atributos de perfil pagali_* mantidos no schema
@@ -733,18 +733,18 @@ clevertap.profile.push({
   Site: {
     pagali_account_status: "approved",
     pagali_verification_status: "verified",
-    pagali_approval_date: new Date(),
+    pagali_data_aprovacao: new Date(),
     pagali_pix_enabled: true,
     pagali_credit_card_enabled: true,
     pagali_boleto_enabled: true,
-    payment_methods_configured: { $add: ["pix", "credit_card", "boleto"] },
+    meio_pagamentos_configured: { $add: ["pix", "credit_card", "boleto"] },
   },
 });
 ```
 
 ---
 
-### Gateway Account Rejected
+### Conta Gateway Rejeitada
 
 **ID:** EVT-024
 **Categoria:** Pagamentos
@@ -763,24 +763,24 @@ Notificação de rejeição da análise.
 
 | Propriedade        | Tipo   | Obrigatório | Descrição                    | Exemplo                                                            |
 | ------------------ | ------ | ----------- | ---------------------------- | ------------------------------------------------------------------ |
-| `payment_gateway`  | String | Sim         | Gateway de pagamento         | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
-| `rejection_reason` | String | Sim         | Motivo da rejeição (interno) | `"incomplete_documents"`, `"data_inconsistency"` |
+| `gateway_pagamento`  | String | Sim         | Gateway de pagamento         | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
+| `motivo_rejeicao` | String | Sim         | Motivo da rejeição (interno) | `"incomplete_documents"`, `"data_inconsistency"` |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Gateway Account Rejected", {
-  payment_gateway: "pagali",
-  rejection_reason: "incomplete_documents",
+clevertap.event.push("Conta Gateway Rejeitada", {
+  gateway_pagamento: "pagali",
+  motivo_rejeicao: "incomplete_documents",
 });
 
 // Nota: Atributos de perfil pagali_* mantidos no schema
 clevertap.profile.push({
   Site: {
     pagali_account_status: "rejected",
-    pagali_rejection_reason: "incomplete_documents",
+    pagali_motivo_rejeicao: "incomplete_documents",
   },
 });
 ```
@@ -791,7 +791,7 @@ clevertap.profile.push({
 
 ---
 
-### Payment Method Enabled
+### Meio Pagamento Ativado
 
 **ID:** EVT-025a
 **Categoria:** Pagamentos
@@ -810,22 +810,22 @@ Ativação de meio de pagamento no gateway.
 
 | Propriedade           | Tipo   | Obrigatório | Descrição              | Exemplo                                                            |
 | --------------------- | ------ | ----------- | ---------------------- | ------------------------------------------------------------------ |
-| `payment_gateway`     | String | Sim         | Gateway de pagamento   | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
-| `payment_method_type` | String | Sim         | Tipo de meio ativado   | `"pix"`, `"credit_card"`, `"boleto"` |
+| `gateway_pagamento`     | String | Sim         | Gateway de pagamento   | `"pagali"`, `"mercado_pago"`, `"app_max"`, `"pagseguro"`, `"pagar_me"`, `"paypal"` |
+| `tipo_meio_pagamento` | String | Sim         | Tipo de meio ativado   | `"pix"`, `"credit_card"`, `"boleto"` |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Payment Method Enabled", {
-  payment_gateway: "pagali",
-  payment_method_type: "pix",
+clevertap.event.push("Meio Pagamento Ativado", {
+  gateway_pagamento: "pagali",
+  tipo_meio_pagamento: "pix",
 });
 
 clevertap.profile.push({
   Site: {
-    payment_methods_configured: { $add: ["pix"] },
+    meio_pagamentos_configured: { $add: ["pix"] },
   },
 });
 ```
@@ -834,7 +834,7 @@ clevertap.profile.push({
 
 ## 3. Eventos de Produtos (BC5)
 
-### Product Creation Started
+### Criacao Produto Iniciada
 
 **ID:** EVT-025
 **Categoria:** Catálogo
@@ -853,23 +853,23 @@ Clique em "Criar produto" ou acesso ao formulário de cadastro.
 
 | Propriedade       | Tipo   | Obrigatório | Descrição         | Exemplo                                     |
 | ----------------- | ------ | ----------- | ----------------- | ------------------------------------------- |
-| `creation_method` | String | Sim         | Método de criação | `"manual"`, `"ai_komea"`                    |
-| `entry_source`    | String | Sim         | Origem do acesso  | `"products_menu"`, `"komea"`, `"dashboard"` |
+| `metodo_criacao` | String | Sim         | Método de criação | `"manual"`, `"ai_komea"`                    |
+| `origem_entrada`    | String | Sim         | Origem do acesso  | `"products_menu"`, `"komea"`, `"dashboard"` |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Product Creation Started", {
-  creation_method: "manual",
-  entry_source: "products_menu",
+clevertap.event.push("Criacao Produto Iniciada", {
+  metodo_criacao: "manual",
+  origem_entrada: "products_menu",
 });
 ```
 
 ---
 
-### Product Created
+### Produto Criado
 
 **ID:** EVT-026
 **Categoria:** Catálogo
@@ -888,33 +888,33 @@ Salvamento bem-sucedido do produto.
 
 | Propriedade        | Tipo    | Obrigatório | Descrição            | Exemplo                  |
 | ------------------ | ------- | ----------- | -------------------- | ------------------------ |
-| `product_id`       | String  | Sim         | ID do produto        | `"prod_123456"`          |
-| `creation_method`  | String  | Sim         | Método de criação    | `"manual"`, `"ai_komea"` |
-| `category`         | String  | Não         | Categoria do produto | `"roupas"`               |
-| `has_images`       | Boolean | Sim         | Tem imagens          | `true`                   |
-| `has_variations`   | Boolean | Sim         | Tem variações        | `false`                  |
-| `is_first_product` | Boolean | Sim         | É o primeiro produto | `true`                   |
+| `id_produto`       | String  | Sim         | ID do produto        | `"prod_123456"`          |
+| `metodo_criacao`  | String  | Sim         | Método de criação    | `"manual"`, `"ai_komea"` |
+| `categoria`         | String  | Não         | Categoria do produto | `"roupas"`               |
+| `tem_imagens`       | Boolean | Sim         | Tem imagens          | `true`                   |
+| `tem_variacoes`   | Boolean | Sim         | Tem variações        | `false`                  |
+| `eh_primeiro_produto` | Boolean | Sim         | É o primeiro produto | `true`                   |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Product Created", {
-  product_id: "prod_123456",
-  creation_method: "manual",
-  category: "roupas",
-  has_images: true,
-  has_variations: false,
-  is_first_product: true,
+clevertap.event.push("Produto Criado", {
+  id_produto: "prod_123456",
+  metodo_criacao: "manual",
+  categoria: "roupas",
+  tem_imagens: true,
+  tem_variacoes: false,
+  eh_primeiro_produto: true,
 });
 
 clevertap.profile.push({
   Site: {
-    has_products: true,
-    products_count: { $incr: 1 },
+    tem_produtos: true,
+    qtd_produtos: { $incr: 1 },
     last_product_date: new Date(),
-    product_creation_method: "manual",
+    product_metodo_criacao: "manual",
   },
 });
 
@@ -945,7 +945,7 @@ if (creationMethod === "ai_komea") {
 
 ## 4. Eventos da Komea (BC7, BC8, BC9)
 
-### Komea Accessed
+### Komea Acessada
 
 **ID:** EVT-028
 **Categoria:** Engajamento
@@ -964,17 +964,17 @@ Entrada na interface da Komea.
 
 | Propriedade      | Tipo   | Obrigatório | Descrição        | Exemplo                                   |
 | ---------------- | ------ | ----------- | ---------------- | ----------------------------------------- |
-| `entry_source`   | String | Sim         | Origem do acesso | `"menu"`, `"dashboard"`, `"notification"` |
-| `session_number` | Number | Sim         | Número da sessão | `5`                                       |
+| `origem_entrada`   | String | Sim         | Origem do acesso | `"menu"`, `"dashboard"`, `"notification"` |
+| `numero_sessao` | Number | Sim         | Número da sessão | `5`                                       |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Komea Accessed", {
-  entry_source: "menu",
-  session_number: 5,
+clevertap.event.push("Komea Acessada", {
+  origem_entrada: "menu",
+  numero_sessao: 5,
 });
 
 clevertap.profile.push({
@@ -1035,7 +1035,7 @@ clevertap.profile.push({
 
 ---
 
-### Komea Customization Completed
+### Komea Personalizacao Concluida
 
 **ID:** EVT-030
 **Categoria:** Customização
@@ -1054,8 +1054,8 @@ Finalização do fluxo de personalização (logo + cor).
 
 | Propriedade      | Tipo   | Obrigatório | Descrição              | Exemplo                        |
 | ---------------- | ------ | ----------- | ---------------------- | ------------------------------ |
-| `logo_source`    | String | Sim         | Origem do logo         | `"uploaded"`, `"ai_generated"` |
-| `color_selected` | String | Sim         | Cor selecionada        | `"#FF5733"`                    |
+| `origem_logo`    | String | Sim         | Origem do logo         | `"uploaded"`, `"ai_generated"` |
+| `cor_selecionada` | String | Sim         | Cor selecionada        | `"#FF5733"`                    |
 | `time_spent`     | Number | Não         | Tempo total (segundos) | `300`                          |
 
 #### Código de Implementação
@@ -1063,9 +1063,9 @@ Finalização do fluxo de personalização (logo + cor).
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Komea Customization Completed", {
-  logo_source: "ai_generated",
-  color_selected: "#FF5733",
+clevertap.event.push("Komea Personalizacao Concluida", {
+  origem_logo: "ai_generated",
+  cor_selecionada: "#FF5733",
   time_spent: 300,
 });
 
@@ -1073,14 +1073,14 @@ clevertap.profile.push({
   Site: {
     komea_customization_completed: true,
     komea_logo_ai_selected: true,
-    komea_color_selected: "#FF5733",
+    komea_cor_selecionada: "#FF5733",
   },
 });
 ```
 
 ---
 
-### Komea Site Published
+### Komea Site Publicado
 
 **ID:** EVT-031
 **Categoria:** Onboarding
@@ -1099,19 +1099,19 @@ Confirmação de publicação do site.
 
 | Propriedade          | Tipo    | Obrigatório | Descrição                            | Exemplo |
 | -------------------- | ------- | ----------- | ------------------------------------ | ------- |
-| `has_payment_method` | Boolean | Sim         | Tem meio de pagamento                | `true`  |
-| `has_product`        | Boolean | Sim         | Tem produto cadastrado               | `true`  |
-| `time_to_publish`    | Number  | Não         | Tempo desde criação da conta (horas) | `48`    |
+| `has_meio_pagamento` | Boolean | Sim         | Tem meio de pagamento                | `true`  |
+| `tem_produto`        | Boolean | Sim         | Tem produto cadastrado               | `true`  |
+| `tempo_publicacao`    | Number  | Não         | Tempo desde criação da conta (horas) | `48`    |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Komea Site Published", {
-  has_payment_method: true,
-  has_product: true,
-  time_to_publish: 48,
+clevertap.event.push("Komea Site Publicado", {
+  has_meio_pagamento: true,
+  tem_produto: true,
+  tempo_publicacao: 48,
 });
 
 clevertap.profile.push({
@@ -1126,7 +1126,7 @@ clevertap.profile.push({
 
 ---
 
-### Komea Opportunity Executed
+### Komea Oportunidade Executada
 
 **ID:** EVT-032
 **Categoria:** Engajamento
@@ -1145,19 +1145,19 @@ Conclusão de uma ação recomendada.
 
 | Propriedade        | Tipo   | Obrigatório | Descrição            | Exemplo                                                      |
 | ------------------ | ------ | ----------- | -------------------- | ------------------------------------------------------------ |
-| `opportunity_type` | String | Sim         | Tipo de oportunidade | `"optimize_images"`, `"add_product"`, `"configure_shipping"` |
-| `opportunity_id`   | String | Sim         | ID da oportunidade   | `"opp_123"`                                                  |
-| `result`           | String | Sim         | Resultado            | `"completed"`, `"skipped"`                                   |
+| `tipo_oportunidade` | String | Sim         | Tipo de oportunidade | `"optimize_images"`, `"add_product"`, `"configure_shipping"` |
+| `id_oportunidade`   | String | Sim         | ID da oportunidade   | `"opp_123"`                                                  |
+| `resultado`           | String | Sim         | Resultado            | `"completed"`, `"skipped"`                                   |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Komea Opportunity Executed", {
-  opportunity_type: "optimize_images",
-  opportunity_id: "opp_123",
-  result: "completed",
+clevertap.event.push("Komea Oportunidade Executada", {
+  tipo_oportunidade: "optimize_images",
+  id_oportunidade: "opp_123",
+  resultado: "completed",
 });
 
 clevertap.profile.push({
@@ -1169,7 +1169,7 @@ clevertap.profile.push({
 
 ---
 
-### Komea Action Executed
+### Komea Acao Executada
 
 **ID:** EVT-033
 **Categoria:** Engajamento
@@ -1188,19 +1188,19 @@ Conclusão de uma ação após conversa com assistente.
 
 | Propriedade      | Tipo   | Obrigatório | Descrição        | Exemplo                                                |
 | ---------------- | ------ | ----------- | ---------------- | ------------------------------------------------------ |
-| `action_type`    | String | Sim         | Tipo de ação     | `"create_promotion"`, `"update_price"`, `"send_email"` |
-| `assistant_type` | String | Sim         | Assistente usado | `"data_assistant"`, `"promotion_creator"`              |
-| `result`         | String | Sim         | Resultado        | `"success"`, `"failed"`                                |
+| `tipo_acao`    | String | Sim         | Tipo de ação     | `"create_promotion"`, `"update_preco"`, `"send_email"` |
+| `tipo_assistente` | String | Sim         | Assistente usado | `"data_assistant"`, `"promotion_creator"`              |
+| `resultado`         | String | Sim         | Resultado        | `"success"`, `"failed"`                                |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Komea Action Executed", {
-  action_type: "create_promotion",
-  assistant_type: "promotion_creator",
-  result: "success",
+clevertap.event.push("Komea Acao Executada", {
+  tipo_acao: "create_promotion",
+  tipo_assistente: "promotion_creator",
+  resultado: "success",
 });
 
 clevertap.profile.push({
@@ -1214,7 +1214,7 @@ clevertap.profile.push({
 
 ## 5. Eventos de Canais de Venda (BC11)
 
-### Marketplace Connected
+### Marketplace Conectado
 
 **ID:** EVT-034
 **Categoria:** Canais
@@ -1236,18 +1236,18 @@ Login/cadastro bem-sucedido no marketplace via Hub de Canais.
 | Propriedade       | Tipo   | Obrigatório | Descrição              | Exemplo                                                        |
 | ----------------- | ------ | ----------- | ---------------------- | -------------------------------------------------------------- |
 | `marketplace`     | String | Sim         | Marketplace conectado  | `"mercado_livre"`, `"magalu"`, `"allever"`, `"compre_sua_peca"` |
-| `account_type`    | String | Sim         | Tipo de conta          | `"existing"`, `"new"`                                          |
-| `connection_date` | Date   | Sim         | Data da conexão        | `"2026-01-26T10:00:00Z"`                                      |
+| `tipo_conta`    | String | Sim         | Tipo de conta          | `"existing"`, `"new"`                                          |
+| `data_conexao` | Date   | Sim         | Data da conexão        | `"2026-01-26T10:00:00Z"`                                      |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Marketplace Connected", {
+clevertap.event.push("Marketplace Conectado", {
   marketplace: "mercado_livre",
-  account_type: "existing",
-  connection_date: new Date().toISOString(),
+  tipo_conta: "existing",
+  data_conexao: new Date().toISOString(),
 });
 
 clevertap.profile.push({
@@ -1261,8 +1261,8 @@ if (marketplace === "mercado_livre") {
   clevertap.profile.push({
     Site: {
       ml_connected: true,
-      ml_connection_date: new Date(),
-      ml_account_type: "existing",
+      ml_data_conexao: new Date(),
+      ml_tipo_conta: "existing",
     },
   });
 }
@@ -1270,7 +1270,7 @@ if (marketplace === "mercado_livre") {
 
 ---
 
-### Marketplace Ad Published 💰
+### Marketplace Anuncio Publicado 💰
 
 **ID:** EVT-035
 **Categoria:** Canais / Monetização
@@ -1292,9 +1292,9 @@ Confirmação do marketplace de publicação.
 | Propriedade   | Tipo    | Obrigatório | Descrição                                                    | Exemplo                                                        |
 | ------------- | ------- | ----------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
 | `marketplace` | String  | Sim         | Marketplace onde o anúncio foi publicado                     | `"mercado_livre"`, `"magalu"`, `"allever"`, `"compre_sua_peca"` |
-| `product_id`  | String  | Sim         | ID do produto                                                | `"prod_123"`                                                   |
-| `ad_type`     | String  | Não         | Tipo de anúncio (configuração específica do marketplace)     | `"classic"`, `"premium"`                                       |
-| `ad_id`       | String  | Sim         | ID do anúncio no marketplace                                 | `"MLB123456789"`                                               |
+| `id_produto`  | String  | Sim         | ID do produto                                                | `"prod_123"`                                                   |
+| `tipo_anuncio`     | String  | Não         | Tipo de anúncio (configuração específica do marketplace)     | `"classic"`, `"premium"`                                       |
+| `id_anuncio`       | String  | Sim         | ID do anúncio no marketplace                                 | `"MLB123456789"`                                               |
 | `is_first_ad` | Boolean | Sim         | Primeiro anúncio neste marketplace                           | `true`                                                         |
 
 #### Código de Implementação
@@ -1302,11 +1302,11 @@ Confirmação do marketplace de publicação.
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Marketplace Ad Published", {
+clevertap.event.push("Marketplace Anuncio Publicado", {
   marketplace: "mercado_livre",
-  product_id: "prod_123",
-  ad_type: "premium",
-  ad_id: "MLB123456789",
+  id_produto: "prod_123",
+  tipo_anuncio: "premium",
+  id_anuncio: "MLB123456789",
   is_first_ad: true,
 });
 
@@ -1370,7 +1370,7 @@ if (marketplace === "mercado_livre") {
 
 ---
 
-### Marketplace Sale Completed 💰
+### Marketplace Venda Concluida 💰
 
 **ID:** EVT-036
 **Categoria:** Canais / Monetização
@@ -1392,10 +1392,10 @@ Pedido confirmado vindo de um marketplace.
 | Propriedade                  | Tipo    | Obrigatório | Descrição                                                | Exemplo                                                        |
 | ---------------------------- | ------- | ----------- | -------------------------------------------------------- | -------------------------------------------------------------- |
 | `marketplace`                | String  | Sim         | Marketplace de origem da venda                           | `"mercado_livre"`, `"magalu"`, `"allever"`, `"compre_sua_peca"` |
-| `order_id`                   | String  | Sim         | ID do pedido                                             | `"ml_order_789"`                                               |
-| `ad_type`                    | String  | Não         | Tipo do anúncio que vendeu (específico do marketplace)   | `"premium"`                                                    |
-| `amount`                     | Number  | Sim         | Valor da venda                                           | `199.90`                                                       |
-| `product_id`                 | String  | Sim         | ID do produto                                            | `"prod_123"`                                                   |
+| `id_pedido`                   | String  | Sim         | ID do pedido                                             | `"ml_order_789"`                                               |
+| `tipo_anuncio`                    | String  | Não         | Tipo do anúncio que vendeu (específico do marketplace)   | `"premium"`                                                    |
+| `valor`                     | Number  | Sim         | Valor da venda                                           | `199.90`                                                       |
+| `id_produto`                 | String  | Sim         | ID do produto                                            | `"prod_123"`                                                   |
 | `is_first_marketplace_sale`  | Boolean | Sim         | Primeira venda neste marketplace                         | `true`                                                         |
 
 #### Código de Implementação
@@ -1403,12 +1403,12 @@ Pedido confirmado vindo de um marketplace.
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("Marketplace Sale Completed", {
+clevertap.event.push("Marketplace Venda Concluida", {
   marketplace: "mercado_livre",
-  order_id: "ml_order_789",
-  ad_type: "premium",
-  amount: 199.9,
-  product_id: "prod_123",
+  id_pedido: "ml_order_789",
+  tipo_anuncio: "premium",
+  valor: 199.9,
+  id_produto: "prod_123",
   is_first_marketplace_sale: true,
 });
 
@@ -1454,7 +1454,7 @@ if (marketplace === "mercado_livre") {
 
 ## 6. Eventos Fiscais (BC10)
 
-### NFe Emitted
+### NFe Emitida
 
 **ID:** EVT-037
 **Categoria:** Fiscal
@@ -1473,23 +1473,23 @@ Confirmação de emissão da NF pelo sistema.
 
 | Propriedade    | Tipo    | Obrigatório | Descrição         | Exemplo              |
 | -------------- | ------- | ----------- | ----------------- | -------------------- |
-| `order_id`     | String  | Sim         | ID do pedido      | `"order_123"`        |
-| `nfe_number`   | String  | Sim         | Número da NF      | `"NF-000123"`        |
-| `amount`       | Number  | Sim         | Valor da NF       | `299.90`             |
-| `is_first_nfe` | Boolean | Sim         | Primeira NF       | `true`               |
-| `tax_regime`   | String  | Sim         | Regime tributário | `"simples_nacional"` |
+| `id_pedido`     | String  | Sim         | ID do pedido      | `"order_123"`        |
+| `numero_nfe`   | String  | Sim         | Número da NF      | `"NF-000123"`        |
+| `valor`       | Number  | Sim         | Valor da NF       | `299.90`             |
+| `eh_primeira_nfe` | Boolean | Sim         | Primeira NF       | `true`               |
+| `regime_tributario`   | String  | Sim         | Regime tributário | `"simples_nacional"` |
 
 #### Código de Implementação
 
 **Web (JavaScript):**
 
 ```javascript
-clevertap.event.push("NFe Emitted", {
-  order_id: "order_123",
-  nfe_number: "NF-000123",
-  amount: 299.9,
-  is_first_nfe: true,
-  tax_regime: "simples_nacional",
+clevertap.event.push("NFe Emitida", {
+  id_pedido: "order_123",
+  numero_nfe: "NF-000123",
+  valor: 299.9,
+  eh_primeira_nfe: true,
+  regime_tributario: "simples_nacional",
 });
 
 clevertap.profile.push({
@@ -1532,7 +1532,7 @@ Para cada evento implementado, verificar:
 - [ ] Tipos de dados estão corretos
 - [ ] Não há duplicação de eventos
 - [ ] Atributos de perfil são atualizados corretamente
-- [ ] Nomes de eventos seguem padrão `Object Action`
+- [ ] Nomes de eventos seguem padrão `Objeto Ação`
 - [ ] Nomes de propriedades estão em snake_case
 
 ---
@@ -1544,3 +1544,4 @@ Para cada evento implementado, verificar:
 | 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases | RMH   |
 | 09/02/2026 | 1.1    | Eventos BC6 gateway-agnósticos + nomes de planos atualizados | RMH   |
 | 09/02/2026 | 1.2    | Eventos BC11 marketplace-agnósticos (ML * → Marketplace *) | RMH   |
+| 12/03/2026 | 2.0    | Tradução completa: eventos e propriedades de EN para PT | RMH   |

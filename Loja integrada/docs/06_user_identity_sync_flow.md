@@ -1,7 +1,7 @@
 # User Identity Sync Flow - Loja Integrada
 
-**Versão:** 2.0
-**Data:** 09 de Fevereiro de 2026
+**Versão:** 3.0
+**Data:** 12 de Março de 2026
 **Plataforma:** CleverTap + Airflow
 
 ---
@@ -71,8 +71,8 @@ sequenceDiagram
     participant CT as CleverTap
 
     User->>App: Executa ação<br/>(ex: abandona checkout)
-    App->>SDK: clevertap.event.push("Checkout Abandoned", {...})
-    App->>SDK: clevertap.profile.push({checkout_abandoned: true})
+    App->>SDK: clevertap.event.push("Checkout Abandonado", {...})
+    App->>SDK: clevertap.profile.push({checkout_abandonado: true})
     SDK->>CT: Evento + Profile Update<br/>Identity: store_123_user_789
     CT-->>SDK: 200 OK
 
@@ -95,7 +95,7 @@ sequenceDiagram
 
     Note over Lake,CT: Execução diária (ex: 06:00 UTC)
 
-    DAG->>Lake: Lê propriedades de todas as lojas<br/>(current_plan, site_published, gmv_30d, etc.)
+    DAG->>Lake: Lê propriedades de todas as lojas<br/>(plano_atual, site_publicado, gmv_30d, etc.)
     Lake-->>DAG: Retorna dados agregados
 
     loop Para cada loja
@@ -176,30 +176,30 @@ def read_store_properties(**context):
         SELECT
             store_id,
             -- Plano e assinatura
-            current_plan,
-            plan_start_date,
-            billing_cycle,
-            is_paying_customer,
+            plano_atual,
+            data_inicio_plano,
+            ciclo_cobranca,
+            cliente_pagante,
             -- Komea / Site
-            site_published,
+            site_publicado,
             -- Enviali (BC1/BC2)
-            enviali_active,
-            shipping_methods_active,
-            correios_direct_contract,
-            enviali_balance_amount,
+            enviali_ativo,
+            metodos_envio_ativos,
+            contrato_direto_correios,
+            saldo_enviali,
             -- Loggi (BC3)
-            loggi_active,
+            loggi_ativa,
             -- Pagali (BC6)
-            pagali_account_status,
-            payment_methods_configured,
-            mercado_pago_configured,
+            status_conta_pagali,
+            meios_pagamento_configurados,
+            mercado_pago_configurado,
             -- Produtos (BC5)
-            has_products,
+            tem_produtos,
             -- Marketplace (BC11)
-            mercado_livre_connected,
+            mercado_livre_conectado,
             -- Fiscal (BC10)
-            nfe_configured,
-            tax_regime,
+            nfe_configurada,
+            regime_tributario,
             -- Métricas agregadas
             gmv_30d,
             visitas_30d,
@@ -253,30 +253,30 @@ def prepare_payloads(**context):
             "type": "profile",
             "profileData": {
                 # Plano e assinatura
-                "current_plan": item['properties']['current_plan'],
-                "plan_start_date": item['properties']['plan_start_date'],
-                "billing_cycle": item['properties']['billing_cycle'],
-                "is_paying_customer": item['properties']['is_paying_customer'],
+                "plano_atual": item['properties']['plano_atual'],
+                "data_inicio_plano": item['properties']['data_inicio_plano'],
+                "ciclo_cobranca": item['properties']['ciclo_cobranca'],
+                "cliente_pagante": item['properties']['cliente_pagante'],
                 # Komea / Site
-                "site_published": item['properties']['site_published'],
+                "site_publicado": item['properties']['site_publicado'],
                 # Enviali (BC1/BC2)
-                "enviali_active": item['properties']['enviali_active'],
-                "shipping_methods_active": item['properties']['shipping_methods_active'],
-                "correios_direct_contract": item['properties']['correios_direct_contract'],
-                "enviali_balance_amount": item['properties']['enviali_balance_amount'],
+                "enviali_ativo": item['properties']['enviali_ativo'],
+                "metodos_envio_ativos": item['properties']['metodos_envio_ativos'],
+                "contrato_direto_correios": item['properties']['contrato_direto_correios'],
+                "saldo_enviali": item['properties']['saldo_enviali'],
                 # Loggi (BC3)
-                "loggi_active": item['properties']['loggi_active'],
+                "loggi_ativa": item['properties']['loggi_ativa'],
                 # Pagali (BC6)
-                "pagali_account_status": item['properties']['pagali_account_status'],
-                "payment_methods_configured": item['properties']['payment_methods_configured'],
-                "mercado_pago_configured": item['properties']['mercado_pago_configured'],
+                "status_conta_pagali": item['properties']['status_conta_pagali'],
+                "meios_pagamento_configurados": item['properties']['meios_pagamento_configurados'],
+                "mercado_pago_configurado": item['properties']['mercado_pago_configurado'],
                 # Produtos (BC5)
-                "has_products": item['properties']['has_products'],
+                "tem_produtos": item['properties']['tem_produtos'],
                 # Marketplace (BC11)
-                "mercado_livre_connected": item['properties']['mercado_livre_connected'],
+                "mercado_livre_conectado": item['properties']['mercado_livre_conectado'],
                 # Fiscal (BC10)
-                "nfe_configured": item['properties']['nfe_configured'],
-                "tax_regime": item['properties']['tax_regime'],
+                "nfe_configurada": item['properties']['nfe_configurada'],
+                "regime_tributario": item['properties']['regime_tributario'],
                 # Métricas agregadas
                 "gmv_30d": item['properties']['gmv_30d'],
                 "visitas_30d": item['properties']['visitas_30d'],
@@ -368,55 +368,55 @@ flowchart TD
 
 Propriedades que representam o **estado da loja** e devem ser iguais para todos os usuários.
 
-| Propriedade                  | Descrição                      |
-| ---------------------------- | ------------------------------ |
-| `current_plan`               | Plano atual da loja            |
-| `plan_start_date`            | Data de início do plano        |
-| `billing_cycle`              | Ciclo de cobrança              |
-| `is_paying_customer`         | Se é cliente pagante           |
-| `site_published`             | Se o site está publicado       |
-| `enviali_active`             | Se Enviali está ativo          |
-| `shipping_methods_active`    | Lista de métodos ativos        |
-| `correios_direct_contract`   | Contrato direto Correios       |
-| `enviali_balance_amount`     | Saldo Enviali                  |
-| `loggi_active`               | Se Loggi está ativa            |
-| `pagali_account_status`      | Status do Pagali               |
-| `payment_methods_configured` | Meios de pagamento ativos      |
-| `mercado_pago_configured`    | Se Mercado Pago está config.   |
-| `has_products`               | Se tem produtos cadastrados    |
-| `mercado_livre_connected`    | Se ML está conectado           |
-| `nfe_configured`             | Se NF está configurada         |
-| `tax_regime`                 | Regime tributário              |
-| `gmv_30d`                    | GMV últimos 30 dias            |
-| `visitas_30d`                | Visitas últimos 30 dias        |
-| `qtde_pedido_30d`            | Pedidos últimos 30 dias        |
+| Propriedade                    | Descrição                      |
+| ------------------------------ | ------------------------------ |
+| `plano_atual`                  | Plano atual da loja            |
+| `data_inicio_plano`            | Data de início do plano        |
+| `ciclo_cobranca`               | Ciclo de cobrança              |
+| `cliente_pagante`              | Se é cliente pagante           |
+| `site_publicado`               | Se o site está publicado       |
+| `enviali_ativo`                | Se Enviali está ativo          |
+| `metodos_envio_ativos`         | Lista de métodos ativos        |
+| `contrato_direto_correios`     | Contrato direto Correios       |
+| `saldo_enviali`                | Saldo Enviali                  |
+| `loggi_ativa`                  | Se Loggi está ativa            |
+| `status_conta_pagali`          | Status do Pagali               |
+| `meios_pagamento_configurados` | Meios de pagamento ativos      |
+| `mercado_pago_configurado`     | Se Mercado Pago está config.   |
+| `tem_produtos`                 | Se tem produtos cadastrados    |
+| `mercado_livre_conectado`      | Se ML está conectado           |
+| `nfe_configurada`              | Se NF está configurada         |
+| `regime_tributario`            | Regime tributário              |
+| `gmv_30d`                      | GMV últimos 30 dias            |
+| `visitas_30d`                  | Visitas últimos 30 dias        |
+| `qtde_pedido_30d`              | Pedidos últimos 30 dias        |
 
 ### USER-LEVEL (Eventos client-side)
 
 Propriedades que representam **ações individuais** do usuário.
 
-| Propriedade              | Evento que dispara          |
-| ------------------------ | --------------------------- |
-| `komea_access_count`     | Usuário acessa Komea        |
-| `komea_last_access_date` | Último acesso à Komea       |
+| Propriedade                | Evento que dispara          |
+| -------------------------- | --------------------------- |
+| `komea_qtd_acessos`        | Usuário acessa Komea        |
+| `komea_data_ultimo_acesso` | Último acesso à Komea       |
 | `MSG-email`, `MSG-push`  | Usuário altera preferências |
 
 ### DUAL-WRITE (Frontend + Backend diário)
 
 Propriedades de assinatura são atualizadas em dois momentos:
 
-1. **Imediato (Frontend):** Quando o usuário completa `Subscription Completed`, o SDK atualiza o perfil DESTE usuário
+1. **Imediato (Frontend):** Quando o usuário completa `Assinatura Concluida`, o SDK atualiza o perfil DESTE usuário
 2. **Diário (Backend):** O DAG sincroniza para TODOS os usuários da loja
 
-| Propriedade          | Evento Frontend          |
-| -------------------- | ------------------------ |
-| `current_plan`       | `Subscription Completed` |
-| `billing_cycle`      | `Subscription Completed` |
-| `is_paying_customer` | `Subscription Completed` |
+| Propriedade        | Evento Frontend        |
+| ------------------ | ---------------------- |
+| `plano_atual`      | `Assinatura Concluida` |
+| `ciclo_cobranca`   | `Assinatura Concluida` |
+| `cliente_pagante`  | `Assinatura Concluida` |
 
 > Nota: Entre o update frontend e o sync diário, outros usuários da mesma loja podem ter dados desatualizados (até 24h).
 >
-> **Nota sobre Inaction:** Propriedades de abandono (`checkout_abandoned`, `checkout_abandoned_step`, `pagali_abandoned_step`) foram removidas. Fluxos de abandono devem usar **segmentação Inaction no CleverTap** (ex: evento de início "Did" AND evento de conclusão "Did not" nos últimos X dias).
+> **Nota sobre Inaction:** Propriedades de abandono (`checkout_abandonado`, `checkout_etapa_abandonada`, `pagali_etapa_abandonada`) foram removidas. Fluxos de abandono devem usar **segmentação Inaction no CleverTap** (ex: evento de início "Did" AND evento de conclusão "Did not" nos últimos X dias).
 
 ---
 
@@ -477,24 +477,24 @@ sequenceDiagram
     Note over João,CT: 1. João abandona checkout (ação individual)
 
     João->>App: Abandona checkout
-    App->>SDK: event.push("Checkout Abandoned")
-    App->>SDK: profile.push({checkout_abandoned: true})
+    App->>SDK: event.push("Checkout Abandonado")
+    App->>SDK: profile.push({checkout_abandonado: true})
     SDK->>CT: Update store_12345_user_789
 
-    Note over CT: Apenas João atualizado com checkout_abandoned=true<br/>Maria e Pedro não são afetados
+    Note over CT: Apenas João atualizado com checkout_abandonado=true<br/>Maria e Pedro não são afetados
 
     Note over João,CT: 2. Loja publica site (estado da loja)
 
     João->>App: Publica site
-    App->>Lake: Pipeline atualiza site_published=true
+    App->>Lake: Pipeline atualiza site_publicado=true
 
     Note over João,CT: 3. Sync diário (06:00 UTC do dia seguinte)
 
-    DAG->>Lake: Lê site_published=true para loja 12345
+    DAG->>Lake: Lê site_publicado=true para loja 12345
     DAG->>DAG: Expande para usuários ativos:<br/>store_12345_user_789 (João)<br/>store_12345_user_456 (Maria)
-    DAG->>CT: Upload batch com site_published=true
+    DAG->>CT: Upload batch com site_publicado=true
 
-    Note over CT: João e Maria atualizados com site_published=true<br/>Pedro (inativo) não é atualizado
+    Note over CT: João e Maria atualizados com site_publicado=true<br/>Pedro (inativo) não é atualizado
 ```
 
 ---
@@ -522,5 +522,6 @@ sequenceDiagram
 
 | Data       | Versão | Alteração                                                                                                           | Autor |
 | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------- | ----- |
+| 12/03/2026 | 3.0    | Tradução completa: eventos e propriedades de EN para PT                                                             | RMH   |
 | 09/02/2026 | 2.0    | +8 props no DAG, DUAL-WRITE para Subscription, cleanup USER-LEVEL, reorganização SQL/payload por BC                 | RMH   |
 | 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases                                                                                | RMH   |

@@ -1,7 +1,7 @@
 # User Profile Schema - Loja Integrada
 
-**Versão:** 3.0
-**Data:** 09 de Fevereiro de 2026
+**Versão:** 4.0
+**Data:** 12 de Março de 2026
 **Plataforma:** CleverTap
 
 ---
@@ -33,7 +33,7 @@ Atributos padrão obrigatórios.
 
 | Atributo       | Tipo    | Descrição                      | Obrigatório |
 | -------------- | ------- | ------------------------------ | ----------- |
-| `Identity`     | String  | ID único do lojista (store_id) | **Sim**     |
+| `Identity`     | String  | ID único do lojista (id_loja) | **Sim**     |
 | `Name`         | String  | Nome completo do lojista       | Sim         |
 | `Email`        | String  | Email do lojista               | Sim         |
 | `Phone`        | String  | Telefone com código país       | Recomendado |
@@ -50,11 +50,11 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo       | Tipo   | Descrição        | Evento Origem   | Fonte   |
 | -------------- | ------ | ---------------- | --------------- | ------- |
-| `store_id`     | String | ID único da loja | `Store Created` | Backend |
-| `store_name`   | String | Nome da loja     | `Store Created` | Backend |
-| `account_type` | String | Tipo: pf ou pj   | `Store Created` | Backend |
-| `state`        | String | Estado (UF)      | `Store Created` | Backend |
-| `city`         | String | Cidade           | `Store Created` | Backend |
+| `id_loja`     | String | ID único da loja | `Loja Criada` | Backend |
+| `nome_loja`   | String | Nome da loja     | `Loja Criada` | Backend |
+| `tipo_conta` | String | Tipo: pf ou pj   | `Loja Criada` | Backend |
+| `estado`        | String | Estado (UF)      | `Loja Criada` | Backend |
+| `cidade`         | String | Cidade           | `Loja Criada` | Backend |
 
 > **Nota:** Não há vínculo direto com Business Cases. São dados cadastrais básicos.
 
@@ -66,20 +66,20 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo             | Tipo    | Descrição                                                       | Evento Origem            | Operação | Fonte              |
 | -------------------- | ------- | --------------------------------------------------------------- | ------------------------ | -------- | ------------------ |
-| `current_plan`       | String  | Plano atual: gratuito, crescimento, aceleração, expansão, elite | `Subscription Completed` | set      | Frontend + Backend |
-| `billing_cycle`      | String  | Ciclo: monthly, annual                                          | `Subscription Completed` | set      | Frontend + Backend |
-| `is_paying_customer` | Boolean | Cliente pagante                                                 | `Subscription Completed` | set      | Frontend + Backend |
-| `plan_start_date`    | Date    | Data de início do plano atual                                   | `Subscription Completed` | set      | Backend            |
+| `plano_atual`       | String  | Plano atual: gratuito, crescimento, aceleração, expansão, elite | `Assinatura Concluida` | set      | Frontend + Backend |
+| `ciclo_cobranca`      | String  | Ciclo: monthly, annual                                          | `Assinatura Concluida` | set      | Frontend + Backend |
+| `cliente_pagante` | Boolean | Cliente pagante                                                 | `Assinatura Concluida` | set      | Frontend + Backend |
+| `data_inicio_plano`    | Date    | Data de início do plano atual                                   | `Assinatura Concluida` | set      | Backend            |
 
 ### Segmentação via Eventos (não precisam de propriedades)
 
 | Necessidade                 | Segmentação CleverTap                                               |
 | --------------------------- | ------------------------------------------------------------------- |
-| Primeira assinatura paga    | Evento `Subscription Completed` com filtro "Did for the first time" |
-| Mudou de plano recentemente | Evento `Subscription Completed` nos últimos X dias                  |
-| Abandonou checkout          | Evento `Subscription Abandoned` nos últimos X dias                  |
-| Usou cupom                  | Evento `Subscription Completed` com `coupon_code` presente          |
-| Total de assinaturas        | Count de eventos `Subscription Completed`                           |
+| Primeira assinatura paga    | Evento `Assinatura Concluida` com filtro "Did for the first time" |
+| Mudou de plano recentemente | Evento `Assinatura Concluida` nos últimos X dias                  |
+| Abandonou checkout          | Evento `Assinatura Abandonada` nos últimos X dias                  |
+| Usou cupom                  | Evento `Assinatura Concluida` com `codigo_cupom` presente          |
+| Total de assinaturas        | Count de eventos `Assinatura Concluida`                           |
 
 ---
 
@@ -89,19 +89,19 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo                   | Tipo          | Descrição                    | Evento Origem                                                           | Operação | Fonte   |
 | -------------------------- | ------------- | ---------------------------- | ----------------------------------------------------------------------- | -------- | ------- |
-| `enviali_active`           | Boolean       | Enviali ativado na loja      | `Shipping Platform Activated` (filtro: `shipping_platform = "enviali"`) | set      | Backend |
-| `shipping_methods_active`  | Array[String] | Lista de métodos ativos      | `Shipping Method Enabled`                                               | append   | Backend |
-| `correios_direct_contract` | Boolean       | Tem contrato direto Correios | `Shipping Method Enabled` (filtro: `carrier_name = "correios"`)         | set      | Backend |
-| `enviali_balance_amount`   | Number        | Valor do saldo atual         | `Shipping Balance Added` (filtro: `shipping_platform = "enviali"`)      | set      | Backend |
+| `enviali_ativo`           | Boolean       | Enviali ativado na loja      | `Plataforma Envio Ativada` (filtro: `plataforma_envio = "enviali"`) | set      | Backend |
+| `metodos_envio_ativos`  | Array[String] | Lista de métodos ativos      | `Metodo Envio Ativado`                                               | append   | Backend |
+| `contrato_direto_correios` | Boolean       | Tem contrato direto Correios | `Metodo Envio Ativado` (filtro: `nome_transportadora = "correios"`)         | set      | Backend |
+| `saldo_enviali`   | Number        | Valor do saldo atual         | `Saldo Envio Adicionado` (filtro: `plataforma_envio = "enviali"`)      | set      | Backend |
 
 ### Segmentação via Eventos (não precisam de propriedades)
 
 | Necessidade             | Segmentação CleverTap                                                                            |
 | ----------------------- | ------------------------------------------------------------------------------------------------ |
-| Data de ativação        | Evento `Shipping Platform Activated` com filtro `shipping_platform = "enviali"` e filtro de data |
-| Comprou etiqueta        | Evento `Label Purchased` "Did"                                                                   |
-| Primeira etiqueta       | Evento `Label Purchased` "Did for the first time"                                                |
-| Quantidade de etiquetas | Count de eventos `Label Purchased`                                                               |
+| Data de ativação        | Evento `Plataforma Envio Ativada` com filtro `plataforma_envio = "enviali"` e filtro de data |
+| Comprou etiqueta        | Evento `Etiqueta Comprada` "Did"                                                                   |
+| Primeira etiqueta       | Evento `Etiqueta Comprada` "Did for the first time"                                                |
+| Quantidade de etiquetas | Count de eventos `Etiqueta Comprada`                                                               |
 
 ---
 
@@ -111,16 +111,16 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo       | Tipo    | Descrição     | Evento Origem                                                    | Operação | Fonte   |
 | -------------- | ------- | ------------- | ---------------------------------------------------------------- | -------- | ------- |
-| `loggi_active` | Boolean | Loggi ativada | `Shipping Method Enabled` (filtro: `carrier_name = "loggi"`) | set      | Backend |
+| `loggi_ativa` | Boolean | Loggi ativada | `Metodo Envio Ativado` (filtro: `nome_transportadora = "loggi"`) | set      | Backend |
 
 ### Segmentação via Eventos (não precisam de propriedades)
 
 | Necessidade             | Segmentação CleverTap                                                                                                              |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Data de ativação        | Evento `Shipping Method Enabled` com filtro `carrier_name = "loggi"` e filtro de data                                              |
-| Comprou etiqueta Loggi  | Evento `Label Purchased` com filtro `carrier_name = "loggi"` "Did"                                                                 |
-| Ativou mas nunca usou   | Evento `Shipping Method Enabled` com `carrier_name = "loggi"` "Did" AND `Label Purchased` com `carrier_name = "loggi"` "Did not" |
-| Quantidade de etiquetas | Count de eventos `Label Purchased` com filtro `carrier_name = "loggi"`                                                             |
+| Data de ativação        | Evento `Metodo Envio Ativado` com filtro `nome_transportadora = "loggi"` e filtro de data                                              |
+| Comprou etiqueta Loggi  | Evento `Etiqueta Comprada` com filtro `nome_transportadora = "loggi"` "Did"                                                                 |
+| Ativou mas nunca usou   | Evento `Metodo Envio Ativado` com `nome_transportadora = "loggi"` "Did" AND `Etiqueta Comprada` com `nome_transportadora = "loggi"` "Did not" |
+| Quantidade de etiquetas | Count de eventos `Etiqueta Comprada` com filtro `nome_transportadora = "loggi"`                                                             |
 
 ---
 
@@ -130,18 +130,18 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo                     | Tipo          | Descrição                                        | Evento Origem                                                                                  | Operação | Fonte   |
 | ---------------------------- | ------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- | -------- | ------- |
-| `pagali_account_status`      | String        | Status: approved, rejected, pending, not_started | `Gateway Account Approved` / `Gateway Account Rejected` (filtro: `payment_gateway = "pagali"`) | set      | Backend |
-| `payment_methods_configured` | Array[String] | Lista de meios configurados                      | `Payment Method Enabled` (filtro: `payment_gateway = "pagali"`)                                | append   | Backend |
-| `mercado_pago_configured`    | Boolean       | Mercado Pago configurado (fallback)              | `Gateway Registration Completed` (filtro: `payment_gateway = "mercado_pago"`)                  | set      | Backend |
+| `status_conta_pagali`      | String        | Status: approved, rejected, pending, not_started | `Conta Gateway Aprovada` / `Conta Gateway Rejeitada` (filtro: `gateway_pagamento = "pagali"`) | set      | Backend |
+| `meios_pagamento_configurados` | Array[String] | Lista de meios configurados                      | `Meio Pagamento Ativado` (filtro: `gateway_pagamento = "pagali"`)                                | append   | Backend |
+| `mercado_pago_configurado`    | Boolean       | Mercado Pago configurado (fallback)              | `Cadastro Gateway Concluido` (filtro: `gateway_pagamento = "mercado_pago"`)                  | set      | Backend |
 
 ### Segmentação via Eventos (não precisam de propriedades)
 
 | Necessidade            | Segmentação CleverTap                                                                                                                                      |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Iniciou cadastro       | Evento `Gateway Registration Started` com filtro `payment_gateway = "pagali"` "Did"                                                                        |
-| Data de aprovação      | Evento `Gateway Account Approved` com filtro `payment_gateway = "pagali"` e filtro de data                                                                 |
-| Abandonou cadastro     | Inaction: `Gateway Registration Started` "Did" AND `Gateway Registration Completed` "Did not" (filtro: `payment_gateway = "pagali"`) nos últimos X dias |
-| Rejeitado por motivo X | Evento `Gateway Account Rejected` com filtro `payment_gateway = "pagali"` e `rejection_reason`                                                             |
+| Iniciou cadastro       | Evento `Cadastro Gateway Iniciado` com filtro `gateway_pagamento = "pagali"` "Did"                                                                        |
+| Data de aprovação      | Evento `Conta Gateway Aprovada` com filtro `gateway_pagamento = "pagali"` e filtro de data                                                                 |
+| Abandonou cadastro     | Inaction: `Cadastro Gateway Iniciado` "Did" AND `Cadastro Gateway Concluido` "Did not" (filtro: `gateway_pagamento = "pagali"`) nos últimos X dias |
+| Rejeitado por motivo X | Evento `Conta Gateway Rejeitada` com filtro `gateway_pagamento = "pagali"` e `motivo_rejeicao`                                                             |
 
 ---
 
@@ -151,16 +151,16 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo       | Tipo    | Descrição                | Evento Origem     | Operação | Fonte   |
 | -------------- | ------- | ------------------------ | ----------------- | -------- | ------- |
-| `has_products` | Boolean | Tem produtos cadastrados | `Product Created` | set      | Backend |
+| `tem_produtos` | Boolean | Tem produtos cadastrados | `Produto Criado` | set      | Backend |
 
 ### Segmentação via Eventos (não precisam de propriedades)
 
 | Necessidade            | Segmentação CleverTap                                     |
 | ---------------------- | --------------------------------------------------------- |
-| Primeiro produto       | Evento `Product Created` "Did for the first time"         |
-| Criou via IA           | Evento `Product Created` com `creation_method = ai_komea` |
-| Quantidade de produtos | Count de eventos `Product Created`                        |
-| Abandonou criação      | Evento `Product Creation Abandoned` "Did"                 |
+| Primeiro produto       | Evento `Produto Criado` "Did for the first time"         |
+| Criou via IA           | Evento `Produto Criado` com `metodo_criacao = ai_komea` |
+| Quantidade de produtos | Count de eventos `Produto Criado`                        |
+| Abandonou criação      | Evento `Criacao Produto Abandonada` "Did"                 |
 
 ---
 
@@ -170,22 +170,22 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo                 | Tipo    | Descrição                           | Evento Origem          | Operação  | Fonte    |
 | ------------------------ | ------- | ----------------------------------- | ---------------------- | --------- | -------- |
-| `site_published`         | Boolean | Site publicado (fora de manutenção) | `Komea Site Published` | set       | Backend  |
-| `komea_access_count`     | Number  | Contador de acessos à Komea         | `Komea Accessed`       | increment | Frontend |
-| `komea_last_access_date` | Date    | Data do último acesso à Komea       | `Komea Accessed`       | set       | Frontend |
+| `site_publicado`         | Boolean | Site publicado (fora de manutenção) | `Komea Site Publicado` | set       | Backend  |
+| `komea_qtd_acessos`     | Number  | Contador de acessos à Komea         | `Komea Acessada`       | increment | Frontend |
+| `komea_data_ultimo_acesso` | Date    | Data do último acesso à Komea       | `Komea Acessada`       | set       | Frontend |
 
 ### Segmentação via Eventos (não precisam de propriedades)
 
 | Necessidade              | Segmentação CleverTap                        |
 | ------------------------ | -------------------------------------------- |
-| Acessou Komea            | Evento `Komea Accessed` "Did"                |
-| Quantidade de acessos    | Count de eventos `Komea Accessed`            |
-| Usou assistente          | Evento `Komea Assistant Accessed` "Did"      |
-| Executou ação            | Evento `Komea Action Executed` "Did"         |
-| Personalizou logo/cor    | Evento `Komea Customization Completed` "Did" |
-| Abandonou personalização | Evento `Komea Customization Abandoned` "Did" |
+| Acessou Komea            | Evento `Komea Acessada` "Did"                |
+| Quantidade de acessos    | Count de eventos `Komea Acessada`            |
+| Usou assistente          | Evento `Komea Assistente Acessado` "Did"      |
+| Executou ação            | Evento `Komea Acao Executada` "Did"         |
+| Personalizou logo/cor    | Evento `Komea Personalizacao Concluida` "Did" |
+| Abandonou personalização | Evento `Komea Personalizacao Abandonada` "Did" |
 
-> **Nota:** BC7, BC8 e BC9 estão em desenvolvimento. A propriedade `pagali_left_komea_flow` foi removida pois pode ser segmentada via evento `Komea Left For Panel`.
+> **Nota:** BC7, BC8 e BC9 estão em desenvolvimento. A propriedade `pagali_left_komea_flow` foi removida pois pode ser segmentada via evento `Komea Saiu Para Painel`.
 
 ---
 
@@ -195,17 +195,17 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo                  | Tipo    | Descrição               | Evento Origem                                                     | Operação | Fonte   |
 | ------------------------- | ------- | ----------------------- | ----------------------------------------------------------------- | -------- | ------- |
-| `mercado_livre_connected` | Boolean | Mercado Livre conectado | `Marketplace Connected` (filtro: `marketplace = "mercado_livre"`) | set      | Backend |
+| `mercado_livre_conectado` | Boolean | Mercado Livre conectado | `Marketplace Conectado` (filtro: `marketplace = "mercado_livre"`) | set      | Backend |
 
 ### Segmentação via Eventos (não precisam de propriedades)
 
 | Necessidade                | Segmentação CleverTap                                                                                  |
 | -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Data de conexão            | Evento `Marketplace Connected` com filtro `marketplace = "mercado_livre"` e filtro de data             |
-| Enviou anúncio             | Evento `Marketplace Products Selected` com filtro `marketplace = "mercado_livre"` "Did"                |
-| Primeiro anúncio publicado | Evento `Marketplace Ad Published` com filtro `marketplace = "mercado_livre"` "Did for the first time" |
-| Quantidade de anúncios     | Count de eventos `Marketplace Ad Published` com filtro `marketplace = "mercado_livre"`                 |
-| Realizou venda             | Evento `Marketplace Sale Completed` com filtro `marketplace = "mercado_livre"` "Did"                   |
+| Data de conexão            | Evento `Marketplace Conectado` com filtro `marketplace = "mercado_livre"` e filtro de data             |
+| Enviou anúncio             | Evento `Marketplace Produtos Selecionados` com filtro `marketplace = "mercado_livre"` "Did"                |
+| Primeiro anúncio publicado | Evento `Marketplace Anuncio Publicado` com filtro `marketplace = "mercado_livre"` "Did for the first time" |
+| Quantidade de anúncios     | Count de eventos `Marketplace Anuncio Publicado` com filtro `marketplace = "mercado_livre"`                 |
+| Realizou venda             | Evento `Marketplace Venda Concluida` com filtro `marketplace = "mercado_livre"` "Did"                   |
 
 ---
 
@@ -215,16 +215,16 @@ Propriedades definidas uma única vez na criação da conta.
 
 | Atributo         | Tipo    | Descrição                                      | Evento Origem             | Operação | Fonte   |
 | ---------------- | ------- | ---------------------------------------------- | ------------------------- | -------- | ------- |
-| `nfe_configured` | Boolean | Configuração fiscal concluída                  | `NFe Settings Configured` | set      | Backend |
-| `tax_regime`     | String  | Regime: simples_nacional, lucro_presumido, mei | `NFe Settings Configured` | set      | Backend |
+| `nfe_configurada` | Boolean | Configuração fiscal concluída                  | `NFe Configuracoes Salvas` | set      | Backend |
+| `regime_tributario`     | String  | Regime: simples_nacional, lucro_presumido, mei | `NFe Configuracoes Salvas` | set      | Backend |
 
 ### Segmentação via Eventos (não precisam de propriedades)
 
 | Necessidade         | Segmentação CleverTap                         |
 | ------------------- | --------------------------------------------- |
-| Primeira NF emitida | Evento `NFe Emitted` "Did for the first time" |
-| Quantidade de NFs   | Count de eventos `NFe Emitted`                |
-| Falha em emissão    | Evento `NFe Emission Failed` "Did"            |
+| Primeira NF emitida | Evento `NFe Emitida` "Did for the first time" |
+| Quantidade de NFs   | Count de eventos `NFe Emitida`                |
+| Falha em emissão    | Evento `NFe Emissao Falhou` "Did"            |
 
 ---
 
@@ -250,15 +250,15 @@ Total: **27 propriedades customizadas** (vs. 95+ anteriormente)
 
 | BC          | Propriedades                                                                                     | Fonte              | Justificativa                                |
 | ----------- | ------------------------------------------------------------------------------------------------ | ------------------ | -------------------------------------------- |
-| —           | `store_id`, `store_name`, `account_type`, `state`, `city`                                        | Backend            | Dados cadastrais (sem BC específico)         |
-| BC4         | `current_plan`, `billing_cycle`, `is_paying_customer`, `plan_start_date`                         | Frontend + Backend | Status atual do plano precisa ser atualizado |
-| BC1/BC2     | `enviali_active`, `shipping_methods_active`, `correios_direct_contract`, `enviali_balance_amount` | Backend            | Estado de configuração e saldo               |
-| BC3         | `loggi_active`                                                                                   | Backend            | Estado de configuração                       |
-| BC6         | `pagali_account_status`, `payment_methods_configured`, `mercado_pago_configured`                 | Backend            | Status e meios ativos                        |
-| BC5         | `has_products`                                                                                   | Backend            | Flag de ativação básica                      |
-| BC7/BC8/BC9 | `site_published`, `komea_access_count`, `komea_last_access_date`                                 | Backend / Frontend | Estado do site + métricas user-level         |
-| BC11        | `mercado_livre_connected`                                                                        | Backend            | Estado de conexão                            |
-| BC10        | `nfe_configured`, `tax_regime`                                                                   | Backend            | Estado de configuração fiscal                |
+| —           | `id_loja`, `nome_loja`, `tipo_conta`, `estado`, `cidade`                                        | Backend            | Dados cadastrais (sem BC específico)         |
+| BC4         | `plano_atual`, `ciclo_cobranca`, `cliente_pagante`, `data_inicio_plano`                         | Frontend + Backend | Status atual do plano precisa ser atualizado |
+| BC1/BC2     | `enviali_ativo`, `metodos_envio_ativos`, `contrato_direto_correios`, `saldo_enviali` | Backend            | Estado de configuração e saldo               |
+| BC3         | `loggi_ativa`                                                                                   | Backend            | Estado de configuração                       |
+| BC6         | `status_conta_pagali`, `meios_pagamento_configurados`, `mercado_pago_configurado`                 | Backend            | Status e meios ativos                        |
+| BC5         | `tem_produtos`                                                                                   | Backend            | Flag de ativação básica                      |
+| BC7/BC8/BC9 | `site_publicado`, `komea_qtd_acessos`, `komea_data_ultimo_acesso`                                 | Backend / Frontend | Estado do site + métricas user-level         |
+| BC11        | `mercado_livre_conectado`                                                                        | Backend            | Estado de conexão                            |
+| BC10        | `nfe_configurada`, `regime_tributario`                                                                   | Backend            | Estado de configuração fiscal                |
 | —           | `gmv_30d`, `visitas_30d`, `qtde_pedido_30d`                                                      | Backend            | Métricas de negócio agregadas                |
 
 ### Propriedades Removidas (segmentáveis via eventos)
@@ -268,7 +268,7 @@ As seguintes propriedades do schema anterior foram removidas por serem deriváve
 - Todas as propriedades `*_date` (first/last) → "Did for the first time" ou filtro de data
 - Todas as propriedades `*_count` → Count de eventos
 - Propriedades de abandono → Evento de abandono correspondente
-- `pagali_left_komea_flow` → Evento `Komea Left For Panel`
+- `pagali_left_komea_flow` → Evento `Komea Saiu Para Painel`
 - Etapas de jornada → Propriedades do evento correspondente
 
 ---
@@ -282,8 +282,8 @@ Sobrescreve o valor anterior.
 ```javascript
 clevertap.profile.push({
   Site: {
-    current_plan: "crescimento",
-    is_paying_customer: true,
+    plano_atual: "crescimento",
+    cliente_pagante: true,
   },
 });
 ```
@@ -295,7 +295,7 @@ Incrementa valor numérico.
 ```javascript
 clevertap.profile.push({
   Site: {
-    komea_access_count: { $incr: 1 },
+    komea_qtd_acessos: { $incr: 1 },
   },
 });
 ```
@@ -307,8 +307,8 @@ Adiciona item à lista (máx 100 items).
 ```javascript
 clevertap.profile.push({
   Site: {
-    shipping_methods_active: { $add: ["loggi"] },
-    payment_methods_configured: { $add: ["pix"] },
+    metodos_envio_ativos: { $add: ["loggi"] },
+    meios_pagamento_configurados: { $add: ["pix"] },
   },
 });
 ```
@@ -320,7 +320,7 @@ Remove item da lista.
 ```javascript
 clevertap.profile.push({
   Site: {
-    shipping_methods_active: { $remove: ["jadlog"] },
+    metodos_envio_ativos: { $remove: ["jadlog"] },
   },
 });
 ```
@@ -333,16 +333,16 @@ clevertap.profile.push({
 
 ```
 Segment Criteria:
-- Event: "Shipping Platform Activated" → Did
-  - Where: shipping_platform = "enviali"
-- AND Event: "Label Purchased" → Did not
+- Event: "Plataforma Envio Ativada" → Did
+  - Where: plataforma_envio = "enviali"
+- AND Event: "Etiqueta Comprada" → Did not
 ```
 
 ### Exemplo 2: Lojistas com primeira venda no marketplace nos últimos 7 dias
 
 ```
 Segment Criteria:
-- Event: "Marketplace Sale Completed" → Did for the first time → in the last 7 days
+- Event: "Marketplace Venda Concluida" → Did for the first time → in the last 7 days
   - Where: marketplace = "mercado_livre"
 ```
 
@@ -350,18 +350,18 @@ Segment Criteria:
 
 ```
 Segment Criteria:
-- Event: "Gateway Registration Started" → Did
-  - Where: payment_gateway = "pagali"
-- AND Event: "Gateway Registration Completed" → Did not
-  - Where: payment_gateway = "pagali"
+- Event: "Cadastro Gateway Iniciado" → Did
+  - Where: gateway_pagamento = "pagali"
+- AND Event: "Cadastro Gateway Concluido" → Did not
+  - Where: gateway_pagamento = "pagali"
 ```
 
 ### Exemplo 4: Lojistas pagantes que nunca criaram produto
 
 ```
 Segment Criteria:
-- Property: is_paying_customer = true
-- AND Event: "Product Created" → Did not
+- Property: cliente_pagante = true
+- AND Event: "Produto Criado" → Did not
 ```
 
 ---
@@ -381,5 +381,6 @@ Segment Criteria:
 
 | Data       | Versão | Alteração                                                                                               | Autor |
 | ---------- | ------ | ------------------------------------------------------------------------------------------------------- | ----- |
+| 12/03/2026 | 4.0    | Tradução completa: eventos e propriedades de EN para PT | RMH   |
 | 09/02/2026 | 3.0    | Revisão: nomes de eventos genericizados, coluna Fonte, props Komea/métricas, estratégia de sync backend | RMH   |
 | 05/01/2026 | 1.0    | Versão inicial com 11 Business Cases                                                                    | RMH   |

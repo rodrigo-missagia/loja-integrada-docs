@@ -1,7 +1,7 @@
 # Guia de Implementação CleverTap - Loja Integrada
 
-**Versão:** 1.3
-**Data:** 09 de Fevereiro de 2026
+**Versão:** 2.0
+**Data:** 12 de Março de 2026
 **Plataforma:** Web
 
 ---
@@ -121,12 +121,12 @@ clevertap.onUserLogin.push({
     Phone: phoneWithCountryCode, // Ex: +5511999999999
 
     // IDs separados para lookup
-    store_id: storeId, // ID da loja (para queries batch)
-    user_id: userId, // ID do usuário (para queries individuais)
+    id_loja: storeId, // ID da loja (para queries batch)
+    id_usuario: userId, // ID do usuário (para queries individuais)
   },
 });
 
-// Nota: store_name, account_type, current_plan e demais propriedades
+// Nota: store_name, tipo_conta, plano_atual e demais propriedades
 // store-level são sincronizadas via DAG Airflow diário (Backend).
 // Ver 06_user_identity_sync_flow.md para detalhes.
 ```
@@ -145,11 +145,11 @@ Atualizadas em **TODOS os usuários** da loja via batch sync (Airflow). **Não d
 
 ```text
 Propriedades Store-Level (20):
-  Conta:       store_id, store_name, account_type, state, city
+  Conta:       id_loja, store_name, tipo_conta, estado, cidade
   Plano:       plan_start_date
-  Enviali:     enviali_active, shipping_methods_active, correios_direct_contract, enviali_balance_amount
+  Enviali:     enviali_active, metodos_envio_ativos, correios_direct_contract, enviali_balance_amount
   Loggi:       loggi_active
-  Pagali:      pagali_account_status, payment_methods_configured, mercado_pago_configured
+  Pagali:      pagali_account_status, meios_pagamento_configurados, mercado_pago_configured
   Produtos:    has_products
   Komea/Site:  site_published
   Marketplace: mercado_livre_connected
@@ -165,7 +165,7 @@ Propriedades de assinatura atualizadas **imediatamente** para o usuário ativo v
 
 ```text
 Propriedades Dual-Write (3):
-  current_plan, billing_cycle, is_paying_customer
+  plano_atual, ciclo_cobranca, cliente_pagante
 ```
 
 > **Motivo:** Quando o lojista contrata/muda de plano, o perfil dele precisa refletir imediatamente (para campanhas de confirmação). Mas outros usuários da mesma loja também precisam do plano atualizado — isso é feito pela DAG.
@@ -178,15 +178,15 @@ Atualizadas **APENAS para o usuário específico** que executou a ação.
 // Exemplo: Usuário acessou a Komea
 clevertap.profile.push({
   Site: {
-    komea_access_count: { $incr: 1 },
-    komea_last_access_date: new Date(),
+    komea_qtd_acessos: { $incr: 1 },
+    komea_data_ultimo_acesso: new Date(),
   },
 });
 
 // Propriedades User-Level:
 // - Name, Email, Phone (dados de contato)
 // - MSG-email, MSG-push (preferências de comunicação)
-// - komea_access_count, komea_last_access_date (uso individual)
+// - komea_qtd_acessos, komea_data_ultimo_acesso (uso individual)
 ```
 
 > **Nota:** Fluxos de abandono (checkout, cadastro Pagali) devem usar **segmentação Inaction no CleverTap** (evento de início "Did" AND evento de conclusão "Did not") em vez de propriedades de perfil.
@@ -222,22 +222,22 @@ Todos os eventos seguem o padrão:
 
 ```javascript
 // Estrutura básica
-clevertap.event.push("Event Name", {
-  property_name: value,
-  another_property: value2,
+clevertap.event.push("Nome Evento", {
+  nome_propriedade: valor,
+  outra_propriedade: valor2,
 });
 ```
 
 ### 4.2 Eventos de Logística (BC1, BC2, BC3)
 
-#### Shipping Platform Activated
+#### Plataforma Envio Ativada
 
 ```javascript
-function trackShippingPlatformActivated(platform, source, fieldsCompleted) {
-  clevertap.event.push("Shipping Platform Activated", {
-    shipping_platform: platform, // "enviali", "fretnet", "melhor_envio", etc.
-    activation_source: source, // "menu_lateral" | "komea"
-    fields_completed: fieldsCompleted, // ["address", "contact", "store_data"]
+function rastrearPlataformaEnvioAtivada(plataforma, origem, camposPreenchidos) {
+  clevertap.event.push("Plataforma Envio Ativada", {
+    plataforma_envio: plataforma, // "enviali", "fretnet", "melhor_envio", etc.
+    origem_ativacao: origem, // "menu_lateral" | "komea"
+    campos_preenchidos: camposPreenchidos, // ["address", "contact", "store_data"]
   });
 
   // Nota: enviali_active e demais propriedades store-level são
@@ -245,20 +245,20 @@ function trackShippingPlatformActivated(platform, source, fieldsCompleted) {
 }
 ```
 
-#### Label Purchased
+#### Etiqueta Comprada
 
 ```javascript
-function trackLabelPurchased(labelData) {
-  clevertap.event.push("Label Purchased", {
-    shipping_platform: labelData.shippingPlatform,
-    order_id: labelData.orderId,
-    carrier_name: labelData.carrierName,
-    carrier_type: labelData.carrierType, // "postal" | "private"
-    amount: labelData.amount,
-    payment_method: labelData.paymentMethod,
-    delivery_time: labelData.deliveryTime, // prazo em dias úteis
-    is_first_purchase: labelData.isFirstPurchase,
-    label_id: labelData.labelId,
+function rastrearEtiquetaComprada(dadosEtiqueta) {
+  clevertap.event.push("Etiqueta Comprada", {
+    plataforma_envio: dadosEtiqueta.plataformaEnvio,
+    id_pedido: dadosEtiqueta.idPedido,
+    nome_transportadora: dadosEtiqueta.nomeTransportadora,
+    tipo_transportadora: dadosEtiqueta.tipoTransportadora, // "postal" | "private"
+    valor: dadosEtiqueta.valor,
+    meio_pagamento: dadosEtiqueta.meioPagamento,
+    prazo_entrega: dadosEtiqueta.prazoEntrega, // prazo em dias úteis
+    eh_primeira_compra: dadosEtiqueta.ehPrimeiraCompra,
+    id_etiqueta: dadosEtiqueta.idEtiqueta,
   });
 
   // Nota: Propriedades de perfil (contadores, datas) foram removidas.
@@ -272,41 +272,41 @@ function trackLabelPurchased(labelData) {
 
 #### Ativação da Loggi
 
-> **Nota:** A ativação da Loggi utiliza o evento genérico `Shipping Method Enabled` com `carrier_name = "loggi"`, conforme decisão de simplificação do tracking plan.
+> **Nota:** A ativação da Loggi utiliza o evento genérico `Metodo Envio Ativado` com `nome_transportadora = "loggi"`, conforme decisão de simplificação do tracking plan.
 
 ```javascript
-function trackLoggiActivated() {
-  // Usar Shipping Method Enabled com carrier_name para Loggi
-  clevertap.event.push("Shipping Method Enabled", {
-    shipping_platform: "enviali",
-    carrier_name: "loggi",
-    carrier_type: "private",
-    is_correios: false,
+function rastrearLoggiAtivada() {
+  // Usar Metodo Envio Ativado com nome_transportadora para Loggi
+  clevertap.event.push("Metodo Envio Ativado", {
+    plataforma_envio: "enviali",
+    nome_transportadora: "loggi",
+    tipo_transportadora: "private",
+    eh_correios: false,
   });
 
-  // Nota: loggi_active, shipping_methods_active e demais propriedades
+  // Nota: loggi_active, metodos_envio_ativos e demais propriedades
   // store-level são atualizadas via DAG Airflow diário (Backend).
 }
 ```
 
 ### 4.3 Eventos de Assinatura (BC4)
 
-#### Subscription Completed
+#### Assinatura Concluida
 
 ```javascript
-function trackSubscriptionCompleted(subscriptionData) {
-  clevertap.event.push("Subscription Completed", {
-    plan_name: subscriptionData.planName,
-    billing_cycle: subscriptionData.billingCycle,
-    amount: subscriptionData.amount,
-    payment_method: subscriptionData.paymentMethod,
-    coupon_used: subscriptionData.couponUsed,
-    coupon_code: subscriptionData.couponCode || null,
-    discount_percentage: subscriptionData.discountPercentage || null,
-    state: subscriptionData.state,
-    city: subscriptionData.city,
-    is_upgrade: subscriptionData.isUpgrade,
-    previous_plan: subscriptionData.previousPlan || null,
+function rastrearAssinaturaConcluida(dadosAssinatura) {
+  clevertap.event.push("Assinatura Concluida", {
+    nome_plano: dadosAssinatura.nomePlano,
+    ciclo_cobranca: dadosAssinatura.cicloCobranca,
+    valor: dadosAssinatura.valor,
+    meio_pagamento: dadosAssinatura.meioPagamento,
+    cupom_utilizado: dadosAssinatura.cupomUtilizado,
+    codigo_cupom: dadosAssinatura.codigoCupom || null,
+    percentual_desconto: dadosAssinatura.percentualDesconto || null,
+    estado: dadosAssinatura.estado,
+    cidade: dadosAssinatura.cidade,
+    eh_upgrade: dadosAssinatura.ehUpgrade,
+    plano_anterior: dadosAssinatura.planoAnterior || null,
   });
 
   // DUAL-WRITE: Atualizar perfil APENAS com as 3 props de assinatura.
@@ -315,9 +315,9 @@ function trackSubscriptionCompleted(subscriptionData) {
   // Ver 06_user_identity_sync_flow.md > seção "DUAL-WRITE".
   clevertap.profile.push({
     Site: {
-      current_plan: subscriptionData.planName,
-      billing_cycle: subscriptionData.billingCycle,
-      is_paying_customer: true,
+      plano_atual: dadosAssinatura.nomePlano,
+      ciclo_cobranca: dadosAssinatura.cicloCobranca,
+      cliente_pagante: true,
     },
   });
 
@@ -328,13 +328,13 @@ function trackSubscriptionCompleted(subscriptionData) {
 
 ### 4.4 Eventos de Gateway de Pagamento (BC6)
 
-#### Gateway Registration Started
+#### Cadastro Gateway Iniciado
 
 ```javascript
-function trackGatewayRegistrationStarted(gateway, entrySource) {
-  clevertap.event.push("Gateway Registration Started", {
-    payment_gateway: gateway, // "pagali", "mercado_pago", "app_max", etc.
-    entry_source: entrySource, // "komea" | "panel" | "direct"
+function rastrearCadastroGatewayIniciado(gateway, origemEntrada) {
+  clevertap.event.push("Cadastro Gateway Iniciado", {
+    gateway_pagamento: gateway, // "pagali", "mercado_pago", "app_max", etc.
+    origem_entrada: origemEntrada, // "komea" | "panel" | "direct"
   });
 
   // Nota: pagali_account_status e demais propriedades store-level são
@@ -342,15 +342,15 @@ function trackGatewayRegistrationStarted(gateway, entrySource) {
 }
 ```
 
-#### Gateway Registration Completed
+#### Cadastro Gateway Concluido
 
 ```javascript
-function trackGatewayRegistrationCompleted(gateway, accountType, documentsSubmitted, stepsCompleted) {
-  clevertap.event.push("Gateway Registration Completed", {
-    payment_gateway: gateway,
-    account_type: accountType,
-    documents_submitted: documentsSubmitted,
-    steps_completed: stepsCompleted,
+function rastrearCadastroGatewayConcluido(gateway, tipoConta, documentosEnviados, etapasConcluidas) {
+  clevertap.event.push("Cadastro Gateway Concluido", {
+    gateway_pagamento: gateway,
+    tipo_conta: tipoConta,
+    documentos_enviados: documentosEnviados,
+    etapas_concluidas: etapasConcluidas,
   });
 
   // Nota: pagali_account_status e demais propriedades store-level são
@@ -358,60 +358,60 @@ function trackGatewayRegistrationCompleted(gateway, accountType, documentsSubmit
 }
 ```
 
-#### Gateway Account Approved
+#### Conta Gateway Aprovada
 
 ```javascript
-function trackGatewayAccountApproved(gateway, paymentMethodsEnabled) {
-  clevertap.event.push("Gateway Account Approved", {
-    payment_gateway: gateway,
-    payment_methods_enabled: paymentMethodsEnabled,
-    approval_date: new Date().toISOString(),
+function rastrearContaGatewayAprovada(gateway, meisPagamentoAtivados) {
+  clevertap.event.push("Conta Gateway Aprovada", {
+    gateway_pagamento: gateway,
+    meios_pagamento_ativados: meisPagamentoAtivados,
+    data_aprovacao: new Date().toISOString(),
   });
 
-  // Nota: pagali_account_status, payment_methods_configured e demais
+  // Nota: pagali_account_status, meios_pagamento_configurados e demais
   // propriedades store-level são atualizadas via DAG Airflow diário (Backend).
 }
 ```
 
-#### Gateway Account Rejected
+#### Conta Gateway Rejeitada
 
 ```javascript
-function trackGatewayAccountRejected(gateway, rejectionReason) {
-  clevertap.event.push("Gateway Account Rejected", {
-    payment_gateway: gateway,
-    rejection_reason: rejectionReason,
+function rastrearContaGatewayRejeitada(gateway, motivoRejeicao) {
+  clevertap.event.push("Conta Gateway Rejeitada", {
+    gateway_pagamento: gateway,
+    motivo_rejeicao: motivoRejeicao,
   });
 
   // Nota: pagali_account_status é atualizado via DAG Airflow diário (Backend).
 }
 ```
 
-#### Payment Method Enabled
+#### Meio Pagamento Ativado
 
 ```javascript
-function trackPaymentMethodEnabled(gateway, paymentMethodType) {
-  clevertap.event.push("Payment Method Enabled", {
-    payment_gateway: gateway,
-    payment_method_type: paymentMethodType, // "pix" | "credit_card" | "boleto"
+function rastrearMeioPagamentoAtivado(gateway, tipoMeioPagamento) {
+  clevertap.event.push("Meio Pagamento Ativado", {
+    gateway_pagamento: gateway,
+    tipo_meio_pagamento: tipoMeioPagamento, // "pix" | "credit_card" | "boleto"
   });
 
-  // Nota: payment_methods_configured é atualizado via DAG Airflow diário (Backend).
+  // Nota: meios_pagamento_configurados é atualizado via DAG Airflow diário (Backend).
 }
 ```
 
 ### 4.5 Eventos de Produtos (BC5)
 
-#### Product Created
+#### Produto Criado
 
 ```javascript
-function trackProductCreated(productData) {
-  clevertap.event.push("Product Created", {
-    product_id: productData.productId,
-    creation_method: productData.creationMethod, // "manual" | "ai_komea"
-    category: productData.category,
-    has_images: productData.hasImages,
-    has_variations: productData.hasVariations,
-    is_first_product: productData.isFirstProduct,
+function rastrearProdutoCriado(dadosProduto) {
+  clevertap.event.push("Produto Criado", {
+    id_produto: dadosProduto.idProduto,
+    metodo_criacao: dadosProduto.metodoCriacao, // "manual" | "ai_komea"
+    categoria: dadosProduto.categoria,
+    tem_imagens: dadosProduto.temImagens,
+    tem_variacoes: dadosProduto.temVariacoes,
+    eh_primeiro_produto: dadosProduto.ehPrimeiroProduto,
   });
 
   // Nota: has_products é atualizado via DAG Airflow diário (Backend).
@@ -421,13 +421,13 @@ function trackProductCreated(productData) {
 
 ### 4.6 Eventos da Komea (BC7, BC8, BC9)
 
-#### Komea Accessed
+#### Komea Acessada
 
 ```javascript
-function trackKomeaAccessed(entrySource, sessionNumber) {
-  clevertap.event.push("Komea Accessed", {
-    entry_source: entrySource, // "menu" | "dashboard" | "notification"
-    session_number: sessionNumber,
+function rastrearKomeaAcessada(origemEntrada, numeroSessao) {
+  clevertap.event.push("Komea Acessada", {
+    origem_entrada: origemEntrada, // "menu" | "dashboard" | "notification"
+    numero_sessao: numeroSessao,
   });
 
   // USER-LEVEL: Atualizar perfil com props individuais do usuário.
@@ -435,35 +435,35 @@ function trackKomeaAccessed(entrySource, sessionNumber) {
   // atividade individual (não da loja).
   clevertap.profile.push({
     Site: {
-      komea_access_count: { $incr: 1 },
-      komea_last_access_date: new Date(),
+      komea_qtd_acessos: { $incr: 1 },
+      komea_data_ultimo_acesso: new Date(),
     },
   });
 }
 ```
 
-#### Komea Site Published
+#### Komea Site Publicado
 
 ```javascript
-function trackKomeaSitePublished(publishData) {
-  clevertap.event.push("Komea Site Published", {
-    has_payment_method: publishData.hasPaymentMethod,
-    has_product: publishData.hasProduct,
-    time_to_publish: publishData.timeToPublish, // em horas
+function rastrearKomeaSitePublicado(dadosPublicacao) {
+  clevertap.event.push("Komea Site Publicado", {
+    tem_meio_pagamento: dadosPublicacao.temMeioPagamento,
+    tem_produto: dadosPublicacao.temProduto,
+    tempo_publicacao: dadosPublicacao.tempoPublicacao, // em horas
   });
 
   // Nota: site_published é atualizado via DAG Airflow diário (Backend).
 }
 ```
 
-#### Komea Action Executed
+#### Komea Acao Executada
 
 ```javascript
-function trackKomeaActionExecuted(actionData) {
-  clevertap.event.push("Komea Action Executed", {
-    action_type: actionData.actionType,
-    assistant_type: actionData.assistantType,
-    result: actionData.result, // "success" | "failed"
+function rastrearKomeaAcaoExecutada(dadosAcao) {
+  clevertap.event.push("Komea Acao Executada", {
+    tipo_acao: dadosAcao.tipoAcao,
+    tipo_assistente: dadosAcao.tipoAssistente,
+    resultado: dadosAcao.resultado, // "success" | "failed"
   });
 
   // Nota: Contagem de ações é segmentável via count do evento.
@@ -472,16 +472,16 @@ function trackKomeaActionExecuted(actionData) {
 
 ### 4.7 Eventos de Marketplace (BC11)
 
-#### Marketplace Ad Published
+#### Marketplace Anuncio Publicado
 
 ```javascript
-function trackMarketplaceAdPublished(marketplace, adData) {
-  clevertap.event.push("Marketplace Ad Published", {
+function rastrearMarketplaceAnuncioPublicado(marketplace, dadosAnuncio) {
+  clevertap.event.push("Marketplace Anuncio Publicado", {
     marketplace: marketplace, // "mercado_livre", "magalu", "allever", "compre_sua_peca"
-    product_id: adData.productId,
-    ad_type: adData.adType, // "classic" | "premium" (específico do marketplace)
-    ad_id: adData.adId,
-    is_first_ad: adData.isFirstAd,
+    id_produto: dadosAnuncio.idProduto,
+    tipo_anuncio: dadosAnuncio.tipoAnuncio, // "classic" | "premium" (específico do marketplace)
+    id_anuncio: dadosAnuncio.idAnuncio,
+    eh_primeiro_anuncio: dadosAnuncio.ehPrimeiroAnuncio,
   });
 
   // Nota: Propriedades de perfil ml_* foram removidas do schema simplificado.
@@ -499,21 +499,21 @@ O CleverTap usa o evento reservado `Charged` para rastreamento de receita. Todo 
 
 > **Documentação completa:** Ver [03_event_specifications.md](./03_event_specifications.md) para implementação detalhada de cada evento Charged.
 
-#### Exemplo: Subscription Completed → Charged
+#### Exemplo: Assinatura Concluida → Charged
 
 ```javascript
-// Após disparar "Subscription Completed", disparar o Charged:
+// Após disparar "Assinatura Concluida", disparar o Charged:
 clevertap.event.push("Charged", {
-  Amount: subscriptionData.amount,
+  Amount: dadosAssinatura.valor,
   Currency: "BRL",
-  "Payment Mode": subscriptionData.paymentMethod,
+  "Payment Mode": dadosAssinatura.meioPagamento,
   "Charged ID": "sub_" + Date.now(),
   Items: [
     {
-      Name: `Plano ${subscriptionData.planName}`,
+      Name: `Plano ${dadosAssinatura.nomePlano}`,
       Category: "subscription",
-      "Billing Cycle": subscriptionData.billingCycle,
-      "Coupon Code": subscriptionData.couponCode || null,
+      "Billing Cycle": dadosAssinatura.cicloCobranca,
+      "Coupon Code": dadosAssinatura.codigoCupom || null,
     },
   ],
 });
@@ -521,13 +521,13 @@ clevertap.event.push("Charged", {
 
 #### Eventos que geram Charged
 
-| Evento Original              | Categoria de Receita   |
-| ---------------------------- | ---------------------- |
-| `Subscription Completed`     | Assinatura de plano    |
-| `Label Purchased`            | Etiqueta de envio      |
-| `Shipping Balance Added`     | Saldo plataforma envio |
-| `Marketplace Ad Published`   | Comissão marketplace   |
-| `Marketplace Sale Completed` | Comissão marketplace   |
+| Evento Original                | Categoria de Receita   |
+| ------------------------------ | ---------------------- |
+| `Assinatura Concluida`         | Assinatura de plano    |
+| `Etiqueta Comprada`            | Etiqueta de envio      |
+| `Saldo Envio Adicionado`       | Saldo plataforma envio |
+| `Marketplace Anuncio Publicado`| Comissão marketplace   |
+| `Marketplace Venda Concluida`  | Comissão marketplace   |
 
 ---
 
@@ -540,9 +540,9 @@ clevertap.event.push("Charged", {
 ```javascript
 clevertap.profile.push({
   Site: {
-    current_plan: "aceleração",
-    billing_cycle: "annual",
-    is_paying_customer: true,
+    plano_atual: "aceleração",
+    ciclo_cobranca: "annual",
+    cliente_pagante: true,
   },
 });
 ```
@@ -552,7 +552,7 @@ clevertap.profile.push({
 ```javascript
 clevertap.profile.push({
   Site: {
-    komea_access_count: { $incr: 1 },
+    komea_qtd_acessos: { $incr: 1 },
   },
 });
 ```
@@ -560,24 +560,24 @@ clevertap.profile.push({
 #### Append (Adicionar à lista) — Apenas Backend/DAG
 
 ```javascript
-// Nota: operações append em shipping_methods_active e payment_methods_configured
+// Nota: operações append em metodos_envio_ativos e meios_pagamento_configurados
 // são executadas exclusivamente via DAG Airflow (Backend).
 // Exemplo do payload que a DAG envia via Upload API:
-// { "shipping_methods_active": { "$add": ["loggi", "correios_pac"] } }
-// { "payment_methods_configured": { "$add": ["pix", "credit_card"] } }
+// { "metodos_envio_ativos": { "$add": ["loggi", "correios_pac"] } }
+// { "meios_pagamento_configurados": { "$add": ["pix", "credit_card"] } }
 ```
 
 #### Remove (Remover da lista) — Apenas Backend/DAG
 
 ```javascript
 // Nota: operações remove também são executadas via DAG Airflow (Backend).
-// Exemplo: { "shipping_methods_active": { "$remove": ["jadlog"] } }
+// Exemplo: { "metodos_envio_ativos": { "$remove": ["jadlog"] } }
 ```
 
 ### 5.2 Boas Práticas
 
 1. **Frontend apenas para User-Level e Dual-Write**: O SDK só deve fazer `profile.push()` para propriedades user-level (Komea) e dual-write (Subscription). Todas as demais são Backend.
-2. **Usar increment para contadores**: Nunca sobrescrever contadores, sempre incrementar (ex: `komea_access_count`)
+2. **Usar increment para contadores**: Nunca sobrescrever contadores, sempre incrementar (ex: `komea_qtd_acessos`)
 3. **Validar tipos**: Garantir que tipos estão corretos (string, number, boolean, date)
 4. **Limites de arrays**: Arrays suportam máximo de 100 itens
 5. **Segmentação por eventos**: Preferir segmentação via eventos para datas (first/last), contadores e histórico — ver [02_user_profile_schema_simplified.md](./02_user_profile_schema_simplified.md)
@@ -763,3 +763,4 @@ Para exclusão de dados conforme LGPD, entrar em contato com o suporte CleverTap
 | 09/02/2026 | 1.1    | Eventos BC6 gateway-agnósticos + nomes de planos atualizados                                                | RMH   |
 | 09/02/2026 | 1.2    | Eventos BC11 marketplace-agnósticos (ML * → Marketplace *)                                                  | RMH   |
 | 09/02/2026 | 1.3    | Revisão integral: schema simplificado, ~40 profile.push removidos, Backend-first/DUAL-WRITE, Komea Accessed | RMH   |
+| 12/03/2026 | 2.0    | Tradução completa: eventos e propriedades de EN para PT | RMH   |
